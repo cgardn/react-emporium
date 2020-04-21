@@ -9,7 +9,7 @@ const EditableLabel = (props) => {
     </span>
     <button
       className="addItemButton"
-      style={{ fontsize: '2rem', }}
+      style={{ fontsize: '2rem' }}
       onClick={props.onClick}
     >{"+"}
     </button>
@@ -17,29 +17,97 @@ const EditableLabel = (props) => {
   );
 };
 
+
+const Inputbox = (props) => {
+  const [content, setContent] = React.useState(props.content);
+  
+  return (
+    <form onSubmit={ event => {
+        event.preventDefault()
+        props.onSubmit(props.id, content)}}
+    >
+      <input
+        className="editLabel"
+        style={{ padding: "2px", margin: "0.5rem", border: "thin solid #111" }}
+        onChange={event => setContent(event.target.value)}
+        onBlur={event => props.onSubmit(props.id, content)}
+        value={content}
+      ></input>
+    </form>
+  );
+};
+
+const Staticlabel = (props) => {
+  const handleClick = () => {
+    console.log(props.id);
+    props.onClick(props.id);
+  };
+  return (
+    <span onClick={event => handleClick()}>{props.content}</span>
+  );
+};
+
 const Listitem = (props) => {
   const {content = "Edit me", ...restProps} = props;
+
   return (
-    <div
-      className={`todo-${restProps.id}`}
-    >
-    <span>{content}</span>
-    <button
-      className="deleteItemButton"
-      style={{ padding: "2px", margin: "0.5rem", border: "thin solid #111" }}
-      onClick={props.onClick}
-    >
-    {"X"}
-    </button>
+    <div className={`todo-${restProps.id}`}>
+      <Staticlabel id={props.id} onClick={props.onClick} content={content} />
+      <button
+        className="deleteItemButton"
+        style={{ padding: "2px", margin: "0.5rem", border: "thin solid #111" }}
+        onClick={props.onDeleteClick}
+      >
+      {"X"}
+      </button>
     </div>
   );
 };
 
 const Todolist = () => {
   const [listContent, setListContent] = React.useState([]);
+  const [nextItemId, setNextItemId] = React.useState(0);
+
+  const handleInputSubmit = (id, content) => {
+    changeItem(content, id);
+  };
+    
+  const handleInputChange = (e) => {
+    console.log("changed");
+  };
+
+  const changeItem = (newContent, id) => {
+    setListContent(listContent.map( (item) => 
+      item.id === id 
+        ? {id: item.id, content: newContent, isEdit: false}
+        : item
+    ))
+  };
+
+  const handleLabelClick = (id) => {
+    setListContent(listContent.map( (item) => 
+      item.id === id
+        ? {id: item.id, content: item.content, isEdit: true}
+        : item
+    ))
+  };
 
   const removeItem = (n) => {
     setListContent(listContent.slice(0,n).concat(listContent.slice(n+1,listContent.length)));
+  };
+
+  const newItem = (content, isEdit) => {
+    const outItem = {
+      content: content,
+      isEdit: isEdit,
+      id: nextItemId,
+    };
+    setNextItemId(nextItemId + 1);
+    return outItem;
+  };
+
+  const handleAdditemClick = () => {
+    setListContent(listContent.concat(newItem("Edit me", true)));
   };
 
   return (
@@ -47,25 +115,29 @@ const Todolist = () => {
       <EditableLabel
         class="new-list-title"
         content="Here's a new list"
-        onClick={() => setListContent(listContent.concat("Edit me"))}
+        onClick={() => handleAdditemClick()}
       />
-  
-      {[...listContent.keys()].map(n =>
-        <Listitem 
-          key={n}
-          id={n}
-          content={listContent[n]} 
-          onClick={ () => removeItem(n) }
-        />
-      )}
+      
+      {listContent.map( (item, index) => (
+        item.isEdit === true
+        ? <Inputbox
+            key={item.id}
+            id={item.id}
+            content={item.content}
+            onSubmit={handleInputSubmit}
+            onChange={handleInputChange}
+          />
+        : <Listitem
+            key={item.id}
+            id={item.id}
+            content={item.content}
+            onClick={handleLabelClick}
+            onDeleteClick={ () => removeItem(index) }
+          />
+      ))}
+      
     </div>
   );
-};
-
-const utils = {
-  range: (min, max) => {
-    return Array.from({ length: max-min+1}, (x, i) => min + i)
-  },
 };
 
 
