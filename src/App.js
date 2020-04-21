@@ -32,6 +32,7 @@ const Inputbox = (props) => {
         onChange={event => setContent(event.target.value)}
         onBlur={event => props.onSubmit(props.id, content)}
         value={content}
+        autoFocus={true}
       ></input>
     </form>
   );
