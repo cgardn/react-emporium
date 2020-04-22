@@ -1,59 +1,52 @@
 import React from 'react';
+import './App.css';
 
-const EditableLabel = (props) => {
+
+
+const Editlabel = (props) => {
+  // Editable label, a span that replaces itself with an Input box on click
+  // - receives content of box or span as a prop
+  // - receives id as prop, to be sent back to parent onChange, to change correct list item content
+  // - receives function references as props:
+  //    + change function for lifting state back up to parent 
+  const [isEdit, setIsEdit] = React.useState(false);
+
   return (
     <>
-    <span 
-      className={props.class}
-    >{props.content}
-    </span>
-    <button
-      className="addItemButton"
-      style={{ fontsize: '2rem' }}
-      onClick={props.onClick}
-    >{"+"}
-    </button>
+    {isEdit === true
+      ? <form 
+          onSubmit={event => {
+            event.preventDefault()
+            setIsEdit(false)}
+          }
+        >
+          <input
+            className={props.class}
+            value={props.content}
+            autoFocus={true}
+            onChange={event => props.onChange(props.id, event.target.value)}
+            onBlur={event => setIsEdit(false)}
+          >
+          </input>
+        </form>
+      : <span 
+          className={props.class}
+          onClick={event => setIsEdit(true)}
+        >{props.content}</span>
+    }
     </>
   );
 };
 
-
-const Inputbox = (props) => {
-  const [content, setContent] = React.useState(props.content);
-  
-  return (
-    <form onSubmit={ event => {
-        event.preventDefault()
-        props.onSubmit(props.id, content)}}
-    >
-      <input
-        className="editLabel"
-        style={{ padding: "2px", margin: "0.5rem", border: "thin solid #111" }}
-        onChange={event => setContent(event.target.value)}
-        onBlur={event => props.onSubmit(props.id, content)}
-        value={content}
-        autoFocus={true}
-      ></input>
-    </form>
-  );
-};
-
-const Staticlabel = (props) => {
-  const handleClick = () => {
-    console.log(props.id);
-    props.onClick(props.id);
-  };
-  return (
-    <span onClick={event => handleClick()}>{props.content}</span>
-  );
-};
-
 const Listitem = (props) => {
-  const {content = "Edit me", ...restProps} = props;
-
   return (
-    <div className={`todo-${restProps.id}`}>
-      <Staticlabel id={props.id} onClick={props.onClick} content={content} />
+    <div className="list-item">
+      <Editlabel
+        className={`todo-${props.id}`}
+        id={props.id}
+        content={props.content}
+        onChange={props.onChange}
+      />
       <button
         className="deleteItemButton"
         style={{ padding: "2px", margin: "0.5rem", border: "thin solid #111" }}
@@ -65,30 +58,15 @@ const Listitem = (props) => {
   );
 };
 
-const Todolist = () => {
+const Todolist = (props) => {
   const [listContent, setListContent] = React.useState([]);
+  const [listTitle, setListTitle] = React.useState("New List");
   const [nextItemId, setNextItemId] = React.useState(0);
 
-  const handleInputSubmit = (id, content) => {
-    changeItem(content, id);
-  };
-    
-  const handleInputChange = (e) => {
-    console.log("changed");
-  };
-
-  const changeItem = (newContent, id) => {
+  const changeItem = (id, newContent) => {
     setListContent(listContent.map( (item) => 
       item.id === id 
-        ? {id: item.id, content: newContent, isEdit: false}
-        : item
-    ))
-  };
-
-  const handleLabelClick = (id) => {
-    setListContent(listContent.map( (item) => 
-      item.id === id
-        ? {id: item.id, content: item.content, isEdit: true}
+        ? {id: item.id, content: newContent}
         : item
     ))
   };
@@ -97,57 +75,103 @@ const Todolist = () => {
     setListContent(listContent.slice(0,n).concat(listContent.slice(n+1,listContent.length)));
   };
 
-  const newItem = (content, isEdit) => {
-    const outItem = {
+  const newItem = (content) => {
+    return {
       content: content,
-      isEdit: isEdit,
-      id: nextItemId,
+      id: props.getId(),
     };
-    setNextItemId(nextItemId + 1);
-    return outItem;
   };
 
   const handleAdditemClick = () => {
     setListContent(listContent.concat(newItem("Edit me", true)));
   };
 
+  const changeListTitle = (id, content) => {
+    setListTitle(content);
+  };
+
   return (
-    <div className="list-body">
-      <EditableLabel
-        class="new-list-title"
-        content="Here's a new list"
-        onClick={() => handleAdditemClick()}
-      />
-      
-      {listContent.map( (item, index) => (
-        item.isEdit === true
-        ? <Inputbox
+    <div className="list">
+      <div className="title">
+        <Editlabel
+          class={"list-title"}
+          id={props.id}
+          content={listTitle}
+          onChange={changeListTitle}
+        />
+      </div>
+      {listContent.length > 0 &&
+      <div className="list-content">
+        {listContent.map( (item, index) => (
+          <Listitem
             key={item.id}
             id={item.id}
             content={item.content}
-            onSubmit={handleInputSubmit}
-            onChange={handleInputChange}
+            onChange={changeItem}
+            onDeleteClick={() => removeItem(index)}
           />
-        : <Listitem
-            key={item.id}
-            id={item.id}
-            content={item.content}
-            onClick={handleLabelClick}
-            onDeleteClick={ () => removeItem(index) }
-          />
-      ))}
+        ))}
+      </div>
+      }
       
+        <button
+          className={"addItemButton"}
+          style={{ fontsize: '2rem' }}
+          onClick={event => handleAdditemClick()}
+        >{"+ Add an item"}</button>
     </div>
   );
 };
 
+const Board = (props) => {
+  const [lists, setLists] = React.useState([]);
+  const [nextItemId, setNextItemId] = React.useState(0);
 
-class App extends React.Component {
-  render() {
-    return (
-      <Todolist />
-    );
-  }
-}
+  const getId = () => {
+    const outId = nextItemId;
+    setNextItemId(nextItemId + 1);
+    return outId;
+  };
+  
+
+  const newList = () => {
+    const outList = {
+      title: "New List",
+      id: getId(),
+    };
+    return outList;
+  };
+
+  const addList = () => {
+    setLists(lists.concat(newList()));
+  };
+  
+  return (
+    <>
+    {lists.length > 0 &&
+    <div>
+      {lists.map( (list) => (
+        <Todolist
+          key={list.id}
+          id={list.id}
+          getId={getId} 
+        />
+      ))}
+    </div>
+    }
+
+    <button
+      className="addListButton"
+      onClick={addList}
+    >{"+ Add another list"}</button>
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <Board />
+  );
+};
 
 export default App;
