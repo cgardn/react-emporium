@@ -61,7 +61,6 @@ const Listitem = (props) => {
 const Todolist = (props) => {
   const [listContent, setListContent] = React.useState([]);
   const [listTitle, setListTitle] = React.useState("New List");
-  const [nextItemId, setNextItemId] = React.useState(0);
 
   const changeItem = (id, newContent) => {
     setListContent(listContent.map( (item) => 
@@ -149,7 +148,7 @@ const Board = (props) => {
   return (
     <>
     {lists.length > 0 &&
-    <div>
+      <>
       {lists.map( (list) => (
         <Todolist
           key={list.id}
@@ -157,7 +156,7 @@ const Board = (props) => {
           getId={getId} 
         />
       ))}
-    </div>
+      </>
     }
 
     <button
