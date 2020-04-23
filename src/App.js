@@ -1,11 +1,15 @@
 import React from 'react';
 import './App.css';
 
-const Itemmenu = () => {
+const Itemmenu = (props) => {
   return (
-    <span 
-      class="item-menu"
-    >Test item menu</span>
+    <button
+      className="item-menu"
+      autoFocus={true}
+      style={{ top: props.posY, left: props.posX }}
+      onClick={props.onClick}
+      onBlur={props.onBlur}
+    >Delete</button>
   );
 };
 
@@ -46,22 +50,32 @@ const Editlabel = (props) => {
 };
 
 const Listitem = (props) => {
+  const [contextMenu, setContextMenu] = React.useState([0,0,false]);
+
   return (
     <div
       className="list-item"
     >
       <Editlabel
-        className={`todo-${props.id}`}
+        class={"list-item-objects list-item-label"}
         id={props.id}
         content={props.content}
         onChange={props.onChange}
       />
       <button
-        className="deleteItemButton"
-        onClick={props.onItemMenuClick}
+        className="deleteItemButton list-item-objects"
+        onClick={event => setContextMenu([event.pageX, event.pageY, !contextMenu[2]])}
       >
       {String.fromCharCode(9899) + String.fromCharCode(9899) + String.fromCharCode(9899)}
       </button>
+      {contextMenu[2] && 
+        <Itemmenu
+          posX={contextMenu[0]}
+          posY={contextMenu[1]}
+          onClick={props.onDeleteClick}
+          onBlur={event => setContextMenu([0,0,!contextMenu])}
+        />
+      }
     </div>
   );
 };
