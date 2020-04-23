@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/react-emporium/static/css/main.2a3b699c.chunk.css",
-    "main.js": "/react-emporium/static/js/main.21ad4cbd.chunk.js",
-    "main.js.map": "/react-emporium/static/js/main.21ad4cbd.chunk.js.map",
+    "main.css": "/react-emporium/static/css/main.c97ce4a1.chunk.css",
+    "main.js": "/react-emporium/static/js/main.b463e739.chunk.js",
+    "main.js.map": "/react-emporium/static/js/main.b463e739.chunk.js.map",
     "runtime-main.js": "/react-emporium/static/js/runtime-main.c7682d1d.js",
     "runtime-main.js.map": "/react-emporium/static/js/runtime-main.c7682d1d.js.map",
     "static/js/2.02b97adb.chunk.js": "/react-emporium/static/js/2.02b97adb.chunk.js",
     "static/js/2.02b97adb.chunk.js.map": "/react-emporium/static/js/2.02b97adb.chunk.js.map",
     "index.html": "/react-emporium/index.html",
-    "precache-manifest.bbfb79a3ea089b44db1250f71380a33f.js": "/react-emporium/precache-manifest.bbfb79a3ea089b44db1250f71380a33f.js",
+    "precache-manifest.b7500996d71fcaeded22b6ef099178d8.js": "/react-emporium/precache-manifest.b7500996d71fcaeded22b6ef099178d8.js",
     "service-worker.js": "/react-emporium/service-worker.js",
-    "static/css/main.2a3b699c.chunk.css.map": "/react-emporium/static/css/main.2a3b699c.chunk.css.map",
+    "static/css/main.c97ce4a1.chunk.css.map": "/react-emporium/static/css/main.c97ce4a1.chunk.css.map",
     "static/js/2.02b97adb.chunk.js.LICENSE.txt": "/react-emporium/static/js/2.02b97adb.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.c7682d1d.js",
     "static/js/2.02b97adb.chunk.js",
-    "static/css/main.2a3b699c.chunk.css",
-    "static/js/main.21ad4cbd.chunk.js"
+    "static/css/main.c97ce4a1.chunk.css",
+    "static/js/main.b463e739.chunk.js"
   ]
 }

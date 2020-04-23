@@ -1,11 +1,11 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "a642f1eb12e2f6c6d64765d1194df03b",
+    "revision": "eda42ad0ce06d9e8bd46873e8f8820d2",
     "url": "/react-emporium/index.html"
   },
   {
-    "revision": "efa56102970c11f247c8",
-    "url": "/react-emporium/static/css/main.2a3b699c.chunk.css"
+    "revision": "59879ef26988d7945729",
+    "url": "/react-emporium/static/css/main.c97ce4a1.chunk.css"
   },
   {
     "revision": "b65ae15ef70714a54277",
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/react-emporium/static/js/2.02b97adb.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "efa56102970c11f247c8",
-    "url": "/react-emporium/static/js/main.21ad4cbd.chunk.js"
+    "revision": "59879ef26988d7945729",
+    "url": "/react-emporium/static/js/main.b463e739.chunk.js"
   },
   {
     "revision": "4fb11e96e1b366e0fce4",
