@@ -4,7 +4,7 @@
   flex-direction: row;
   justify-content: center;
   font-family: Helvetica;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .list {
@@ -28,12 +28,29 @@
 }
 
 .list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
-  padding: 0 10px;
+  padding: 5px 10px;
   font-family: sans-serif;
   background-color: #eee;
 }
 
 .addListButton {
   margin-top: 20px;
+}
+
+.custom-context-menu {
+  position: fixed;
+}
+
+.deleteItemButton {
+  margin: 1px;
+  padding: 0 0;
+  background: transparent;
+  color: #909090;
+  font-size: 0.5rem;
+  border: none;
+  cursor: pointer;
 }

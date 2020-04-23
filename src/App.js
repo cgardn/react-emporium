@@ -1,6 +1,13 @@
 import React from 'react';
 import './App.css';
 
+const Itemmenu = () => {
+  return (
+    <span 
+      class="item-menu"
+    >Test item menu</span>
+  );
+};
 
 
 const Editlabel = (props) => {
@@ -40,7 +47,9 @@ const Editlabel = (props) => {
 
 const Listitem = (props) => {
   return (
-    <div className="list-item">
+    <div
+      className="list-item"
+    >
       <Editlabel
         className={`todo-${props.id}`}
         id={props.id}
@@ -49,10 +58,9 @@ const Listitem = (props) => {
       />
       <button
         className="deleteItemButton"
-        style={{ padding: "2px", margin: "0.5rem", border: "thin solid #111" }}
-        onClick={props.onDeleteClick}
+        onClick={props.onItemMenuClick}
       >
-      {"X"}
+      {String.fromCharCode(9899) + String.fromCharCode(9899) + String.fromCharCode(9899)}
       </button>
     </div>
   );
