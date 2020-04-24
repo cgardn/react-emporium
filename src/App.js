@@ -104,7 +104,7 @@ const Todolist = (props) => {
   };
 
   const handleAdditemClick = () => {
-    setListContent(listContent.concat(newItem("Edit me", true)));
+    setListContent(listContent.concat(newItem("Click to edit", true)));
   };
 
   const changeListTitle = (id, content) => {
