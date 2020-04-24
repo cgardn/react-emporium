@@ -1,6 +1,6 @@
 {
   "homepage": "https://cgardn.github.io/list-reactor",
-  "name": "react-todo-list",
+  "name": "list-reactor",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
