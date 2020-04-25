@@ -50,26 +50,68 @@ const Monthpicker = (props) => {
   ); 
 };
 
+const Day = (props) => {
+  return (
+    <div className="calendar-day">
+      <div className="calendar-day-number">
+        {props.number}
+      </div>
+    </div>
+  );
+};
+
+const Week = (props) => {
+  // receives current day, returns list of <Day /> with 
+  // correct numbering (Monday to Sunday)
+  //
+  // assume Wednesday just for testing to get the numbering
+  //   and "today" indicator correct
+  const firstDay = props.day - 3
+  return (
+    <div className="calendar-container">
+    {[...Array(7).keys()].map( (item, index) => (
+      <Day 
+        key={index+1}
+        number={index+1}
+      />
+    ))}
+    </div>
+  );
+};
+
 const Calendar = (props) => {
   const [month, setMonth] = React.useState(utils.thisMonth);
+  const [currentDay, setCurrentDay] = React.useState(15);
   const handleMonthChange = (newMonth) => {
     setMonth(newMonth);
   };
+  const handleDayChange = (newDay) => {
+    setCurrentDay(newDay);
+  };
+  const handleSubmit = () => {
+    console.log(currentDay);
+  };
+
   return (
-    <>
+    <div className="app">
     <Monthpicker
       onMonthSubmit={handleMonthChange}
       month={month}
     />
-    <div className="calendar-container">
-
-    {[...Array(utils.dayCounts[month]).keys()].map( (item, index) => (
-      <div className="calendar-day" key={index}>
-        {index+1}
-      </div>
-    ))}
+    Current Day: {currentDay}
+    <form 
+      onSubmit={event => {
+        event.preventDefault()
+        handleSubmit()
+      }}
+    >
+      <input
+        onChange={event => {
+        handleDayChange(event.target.value)}}
+      ></input>
+    </form>
+    <Week />
     </div>
-    </>
   );
 };
 
