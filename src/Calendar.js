@@ -1,6 +1,12 @@
 import React from 'react';
 import './Calendar.css';
 
+// TODO
+//  - need to use Date() to get number of days in a month, to account for leap years
+//  - under certain unknown conditions, going back a month with the dropdown only goes to the 1st of that month
+//  - <Week/> only knows about the number date of today, and highlights that day on every month
+//    -> so if it's April 25th, then when you scroll ahead to May 25th it'll be highlighted too
+
 const utils = {
   dayCounts: {
     0: 31,
@@ -21,19 +27,35 @@ const utils = {
     'July', 'August', 'September', 'October', 'November',
     'December'
   ],
+  dayNames: [
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+  ],
+
   thisMonth: () => {
     const d = new Date();
     return d.getMonth();
   },
 };
 
-const Monthpicker = (props) => {
+const Datepicker = (props) => {
   return (
-    <form onSubmit={event => {
-      props.onMonthSubmit(event.target.value)}}>
+    <form>
+      <select 
+        onChange={event => props.onYearChange(event.target.value)}
+        name="year"
+        id="year-select"
+        value={props.year}
+      >
+        {[...Array(3).keys()].map( (item, index) => (
+          <option
+            key={index+1000}
+            value={item + (props.year - 1)}
+          >{item + (props.year-1)}
+          </option>
+        ))};
+      </select>
       <select
-        onChange={event => {
-          props.onMonthSubmit(event.target.value)}}
+        onChange={event => props.onMonthChange(event.target.value)}
         name="month"
         id="month-select"
         value={props.month}
@@ -46,6 +68,21 @@ const Monthpicker = (props) => {
           </option>
         ))};
       </select>
+      <select
+        onChange={event => props.onDayChange(event.target.value)}
+        name="day"
+        id="day-select"
+        value={props.day}
+        selected={props.day}
+      >
+        {[...Array(utils.dayCounts[props.month]).keys()].map( (item, index) => (
+          <option
+            key={index+10000}
+            value={index+1}
+           >{index+1}
+          </option>
+        ))}
+      </select>
     </form>
   ); 
 };
@@ -56,60 +93,109 @@ const Day = (props) => {
       <div className="calendar-day-number">
         {props.number}
       </div>
+      <div className="calendar-day-name">
+        {utils.dayNames[props.day]}
+      </div>
+    </div>
+  );
+};
+
+const Weekswitcher = (props) => {
+  return (
+    <div className="week-switch-container">
+    <div className="week-switch-button" onClick={props.previousWeek}>{'\u25C4'}</div>
+    <div className="week-switch-button" onClick={props.nextWeek}>{'\u25BA'}</div>
     </div>
   );
 };
 
 const Week = (props) => {
   // receives current day, returns list of <Day /> with 
-  // correct numbering (Monday to Sunday)
-  //
-  // needs to keep monday first and just move the shaded "today" day around currentDay changes on calendar parent
+  // correct numbering
+  
+  const weekNums = (dateProp) => {
+    // takes today's date number, returns date numbers for this week from Sunday to Saturday, as an array
+    //   purpose: use the Date object's functions so month boundaries are handled correctly
+    let week = [];
+    let date = new Date(dateProp);
+
+    // set day to Sunday before loop
+    date.setDate(date.getDate()-date.getDay());
+    for (let i=0; i<7;i++) {
+      week.push(date.getDate());
+      date.setDate(date.getDate()+1);
+    }
+    return week;
+  };
+
   return (
+    <>
     <div className="calendar-container">
-      {[...Array(7).keys()].map( (item, index) => (
+      {weekNums(props.dateObj).map( (item, index) => (
         <Day
           key={index+1}
-          number={index+(props.day-3)}
-          today={props.day}
+          number={item}
+          today={props.todayDate}
+          day={index}
         />
       ))}
     </div>
+    </>
   );
 };
 
 const Calendar = (props) => {
-  const [month, setMonth] = React.useState(utils.thisMonth);
-  const [currentDay, setCurrentDay] = React.useState(10);
+  const [currentDay, setCurrentDay] = React.useState(new Date());
+  const [displayDay, setDisplayDay] = React.useState(new Date());
+
+  const handleYearChange = (newYear) => {
+    setDisplayDay(new Date(displayDay.setYear(newYear)));
+  };
+
   const handleMonthChange = (newMonth) => {
-    setMonth(newMonth);
+    setDisplayDay(new Date(displayDay.setMonth(newMonth)));
   };
-  const handleDayChange = (newDay) => {
-    setCurrentDay(newDay);
+
+  const handleDayChange = (newDate) => {
+    setDisplayDay(new Date(displayDay.setDate(newDate)));
   };
+
+  const handlePreviousWeek = () => {
+    console.log(displayDay);
+    setDisplayDay(new Date(displayDay.setDate(displayDay.getDate()-7)));
+    console.log(displayDay);
+  };
+
+  const handleNextWeek = () => {
+    console.log(displayDay);
+    setDisplayDay(new Date(displayDay.setDate(displayDay.getDate()+7)));
+    console.log(displayDay);
+  };
+
   const handleSubmit = () => {
     console.log(currentDay);
   };
 
   return (
     <div className="app">
-    <Monthpicker
-      onMonthSubmit={handleMonthChange}
-      month={month}
+    <Datepicker
+      onYearChange={handleYearChange}
+      onMonthChange={handleMonthChange}
+      onDayChange={handleDayChange}
+      onDateSubmit={handleSubmit}
+      year={displayDay.getFullYear()}
+      month={displayDay.getMonth()}
+      day={displayDay.getDate()}
     />
-    Current Day: {currentDay}
-    <form 
-      onSubmit={event => {
-        event.preventDefault()
-        handleSubmit()
-      }}
-    >
-      <input
-        onChange={event => {
-        handleDayChange(event.target.value)}}
-      ></input>
-    </form>
-    <Week day={currentDay} />
+    <Weekswitcher
+      previousWeek={handlePreviousWeek}
+      nextWeek={handleNextWeek}
+    />
+    <Week 
+      dateObj={displayDay}
+      todayDate={currentDay.getDate()}
+      day={displayDay.getDay()}
+    />
     </div>
   );
 };
