@@ -52,7 +52,7 @@ const Monthpicker = (props) => {
 
 const Day = (props) => {
   return (
-    <div className="calendar-day">
+    <div className={props.today === props.number ? "calendar-day calendar-day-today" : "calendar-day"}>
       <div className="calendar-day-number">
         {props.number}
       </div>
@@ -64,24 +64,23 @@ const Week = (props) => {
   // receives current day, returns list of <Day /> with 
   // correct numbering (Monday to Sunday)
   //
-  // assume Wednesday just for testing to get the numbering
-  //   and "today" indicator correct
-  const firstDay = props.day - 3
+  // needs to keep monday first and just move the shaded "today" day around currentDay changes on calendar parent
   return (
     <div className="calendar-container">
-    {[...Array(7).keys()].map( (item, index) => (
-      <Day 
-        key={index+1}
-        number={index+1}
-      />
-    ))}
+      {[...Array(7).keys()].map( (item, index) => (
+        <Day
+          key={index+1}
+          number={index+(props.day-3)}
+          today={props.day}
+        />
+      ))}
     </div>
   );
 };
 
 const Calendar = (props) => {
   const [month, setMonth] = React.useState(utils.thisMonth);
-  const [currentDay, setCurrentDay] = React.useState(15);
+  const [currentDay, setCurrentDay] = React.useState(10);
   const handleMonthChange = (newMonth) => {
     setMonth(newMonth);
   };
@@ -110,7 +109,7 @@ const Calendar = (props) => {
         handleDayChange(event.target.value)}}
       ></input>
     </form>
-    <Week />
+    <Week day={currentDay} />
     </div>
   );
 };
