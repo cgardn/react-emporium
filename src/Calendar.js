@@ -100,10 +100,20 @@ const Day = (props) => {
   );
 };
 
+const Datedisplay = (props) => {
+  return (
+    <div className="datedisplay">
+      {utils.monthNames[props.month]} {props.date}, {props.year}
+    </div>
+  );
+};
+
 const Weekswitcher = (props) => {
   return (
     <div className="week-switch-container">
     <div className="week-switch-button" onClick={props.previousWeek}>{'\u25C4'}</div>
+    <Datedisplay month={props.month} year={props.year} date={props.date} />
+    <button onClick={props.handleReturnToToday}>Back to this week</button>
     <div className="week-switch-button" onClick={props.nextWeek}>{'\u25BA'}</div>
     </div>
   );
@@ -161,15 +171,15 @@ const Calendar = (props) => {
   };
 
   const handlePreviousWeek = () => {
-    console.log(displayDay);
     setDisplayDay(new Date(displayDay.setDate(displayDay.getDate()-7)));
-    console.log(displayDay);
   };
 
   const handleNextWeek = () => {
-    console.log(displayDay);
     setDisplayDay(new Date(displayDay.setDate(displayDay.getDate()+7)));
-    console.log(displayDay);
+  };
+
+  const handleReturnToToday = () => {
+    setDisplayDay(new Date(currentDay));
   };
 
   const handleSubmit = () => {
@@ -177,7 +187,7 @@ const Calendar = (props) => {
   };
 
   return (
-    <div className="app">
+    <div className="calendar">
     <Datepicker
       onYearChange={handleYearChange}
       onMonthChange={handleMonthChange}
@@ -190,6 +200,10 @@ const Calendar = (props) => {
     <Weekswitcher
       previousWeek={handlePreviousWeek}
       nextWeek={handleNextWeek}
+      handleReturnToToday={handleReturnToToday}
+      year={currentDay.getFullYear()}
+      month={currentDay.getMonth()}
+      date={currentDay.getDate()}
     />
     <Week 
       dateObj={displayDay}

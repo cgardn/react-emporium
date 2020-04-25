@@ -1,9 +1,8 @@
-#root {
+.todoboard {
   display: flex;
-  height: 100vh;
+  height: 60vh;
   flex-direction: row;
   justify-content: center;
-  font-family: Helvetica;
   align-items: flex-start;
 }
 

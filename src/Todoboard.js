@@ -168,7 +168,7 @@ const Todoboard = (props) => {
   };
   
   return (
-    <>
+    <div className="todoboard">
     {lists.length > 0 &&
       <>
       {lists.map( (list) => (
@@ -185,7 +185,7 @@ const Todoboard = (props) => {
       className="addListButton"
       onClick={addList}
     >{"+ Add another list"}</button>
-    </>
+    </div>
   );
 };
 

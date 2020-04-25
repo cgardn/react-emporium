@@ -1,16 +1,17 @@
-.app {
+.calendar {
   display: flex;
   flex-direction: column;
   margin-top: 5px;
-  height: calc(100% - 45px);
+  height: 40vh;
 }
 
 .calendar-container {
   display: flex;
   flex-wrap: wrap;
-  height: calc(30% - 40px);
   width: 90vw;
+  height: 100%;
   margin-top: 5px;
+  align-self: center;
 }
 
 .calendar-day {
@@ -38,6 +39,8 @@
 .week-switch-container {
   display: flex;
   justify-content: space-between;
+  width: 90%;
+  align-self: center;
 }
 
 .week-switch-button {
