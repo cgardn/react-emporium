@@ -18,9 +18,24 @@
 
 
 .title {
-  font-size: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 1.5rem;
   margin-bottom: 5px;
 }
+
+.list-delete-button {
+  border: none;
+  cursor: pointer;
+  margin: 2px 0;
+  padding: 3px 3px;
+}
+
+.list-delete-button:hover {
+  background-color: #bbb;
+}
+
 
 .list-content {
   padding: 5px 0;

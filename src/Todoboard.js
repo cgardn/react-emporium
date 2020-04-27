@@ -1,6 +1,16 @@
 import React from 'react';
 import './Todoboard.css';
 
+// TODO-next steps
+//  - limit number of lists before bumping to next line
+//  - top-level todoboard state is shallow, doesn't include
+//    list items, need top-level state object that includes
+//    everything, including all items assigned to whatever
+//    date
+//  - work on dragging items around
+//    - make list items draggable
+//    - make calendar days drag targets
+
 const Itemmenu = (props) => {
   return (
     <button
@@ -120,6 +130,10 @@ const Todolist = (props) => {
           content={listTitle}
           onChange={changeListTitle}
         />
+        <button
+          className="list-delete-button"
+          onClick={props.onDeleteClick}
+        >X</button>
       </div>
       {listContent.length > 0 &&
       <div className="list-content">
@@ -154,7 +168,6 @@ const Todoboard = (props) => {
     return outId;
   };
   
-
   const newList = () => {
     const outList = {
       title: "New List",
@@ -166,16 +179,21 @@ const Todoboard = (props) => {
   const addList = () => {
     setLists(lists.concat(newList()));
   };
+
+  const removeList = (n) => {
+    setLists(lists.slice(0,n).concat(lists.slice(n+1,lists.length)));
+  };
   
   return (
     <div className="todoboard">
     {lists.length > 0 &&
       <>
-      {lists.map( (list) => (
+      {lists.map( (list, index) => (
         <Todolist
           key={list.id}
           id={list.id}
           getId={getId} 
+          onDeleteClick={() => removeList(index)}
         />
       ))}
       </>
@@ -186,7 +204,7 @@ const Todoboard = (props) => {
       onClick={addList}
     >{"+ Add another list"}</button>
     </div>
-  );
+  )
 };
 
 export default Todoboard;
