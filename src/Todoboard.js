@@ -11,6 +11,32 @@ import './Todoboard.css';
 //    - make list items draggable
 //    - make calendar days drag targets
 
+const Day = (props) => {
+    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  return (
+    <div className="calendar-day">
+      <div className="calendar-day-name">
+        {dayNames[props.day]}
+      </div>
+    </div>
+  );
+};
+
+const Week = () => {
+  return (
+    <>
+    <div className="calendar-container">
+      {[0,1,2,3,4,5,6].map( (item, index) => (
+        <Day
+          key={index+1}
+          day={index}
+        />
+      ))}
+    </div>
+    </>
+  );
+};
+
 const Itemmenu = (props) => {
   return (
     <button
@@ -91,19 +117,19 @@ const Listitem = (props) => {
 };
 
 const Todolist = (props) => {
-  const [listContent, setListContent] = React.useState([]);
-  const [listTitle, setListTitle] = React.useState("New List");
+  const dispatch = React.useContext(ListDispatchContext);
 
   const changeItem = (id, newContent) => {
-    setListContent(listContent.map( (item) => 
-      item.id === id 
-        ? {id: item.id, content: newContent}
-        : item
-    ))
+    dispatch({
+      type: 'UPDATE_TODO',
+      listId: props.id,
+      itemId: id,
+      payload: newContent
+    });
   };
 
-  const removeItem = (n) => {
-    setListContent(listContent.slice(0,n).concat(listContent.slice(n+1,listContent.length)));
+  const removeItem = (id) => {
+    dispatch({type: 'REMOVE_TODO', listId: props.id, itemId: id});
   };
 
   const newItem = (content) => {
@@ -114,11 +140,16 @@ const Todolist = (props) => {
   };
 
   const handleAdditemClick = () => {
-    setListContent(listContent.concat(newItem("Click to edit", true)));
+    const ni = newItem("Click to edit");
+    dispatch({type: 'ADD_TODO', id: props.id, payload: ni});
   };
 
   const changeListTitle = (id, content) => {
-    setListTitle(content);
+    dispatch({
+      type: 'UPDATE_LIST_TITLE',
+      id: id,
+      payload: content
+    });
   };
 
   return (
@@ -126,8 +157,8 @@ const Todolist = (props) => {
       <div className="title">
         <Editlabel
           class={"list-title"}
-          id={props.id}
-          content={listTitle}
+          id={props.list.id}
+          content={props.list.title}
           onChange={changeListTitle}
         />
         <button
@@ -135,31 +166,79 @@ const Todolist = (props) => {
           onClick={props.onDeleteClick}
         >X</button>
       </div>
-      {listContent.length > 0 &&
       <div className="list-content">
-        {listContent.map( (item, index) => (
+        {props.list.items.map( (item, index) => (
           <Listitem
             key={item.id}
             id={item.id}
             content={item.content}
             onChange={changeItem}
-            onDeleteClick={() => removeItem(index)}
+            onDeleteClick={() => removeItem(item.id)}
           />
         ))}
       </div>
-      }
-      
-        <button
-          className={"addItemButton"}
-          style={{ fontsize: '2rem' }}
-          onClick={event => handleAdditemClick()}
-        >{"+ Add an item"}</button>
+      <button
+        className={"addItemButton"}
+        style={{ fontsize: '2rem' }}
+        onClick={handleAdditemClick}
+      >{"+ Add an item"}</button>
     </div>
   );
 };
 
+const initialListState = [];
+const listReducer = (state, action) => {
+  switch(action.type) {
+    case 'ADD_TODO':
+      return state.map( list => {
+        if (list.id === action.id) {
+          return { ...list, items: [...list.items, action.payload]};
+        } else {
+          return list;
+        }
+      });
+    case 'REMOVE_TODO':
+      return state.map( list => {
+        if (list.id === action.listId) {
+          return { ...list, items: list.items.filter( item => item.id !== action.itemId)}
+        } else {
+          return list;
+        }
+      });
+    case 'UPDATE_TODO':
+      return state.map( list => {
+        if (list.id === action.listId) {
+          return {...list, items: list.items.map( item => {
+            if (item.id === action.itemId) {
+              return {...item, content: action.payload}
+            } else {
+              return item
+            }
+          })};
+        } else {
+          return list;
+        }});
+    case 'ADD_LIST':
+      return [ ...state, action.payload ];
+    case 'REMOVE_LIST':
+      return state.filter(list => list.id !== action.listId);
+    case 'UPDATE_LIST_TITLE':
+      return state.map( list => {
+        if (list.id === action.id) {
+          return { ...list, title: action.payload};
+        } else {
+          return list
+        }
+      });
+    default:
+      return state;
+  }
+};
+
+const ListDispatchContext = React.createContext(null);
+
 const Todoboard = (props) => {
-  const [lists, setLists] = React.useState([]);
+  const [lists, dispatch] = React.useReducer(listReducer, initialListState);
   const [nextItemId, setNextItemId] = React.useState(0);
 
   const getId = () => {
@@ -172,28 +251,37 @@ const Todoboard = (props) => {
     const outList = {
       title: "New List",
       id: getId(),
+      items: []
     };
     return outList;
   };
 
   const addList = () => {
-    setLists(lists.concat(newList()));
+    const nl = newList();
+    dispatch({type: 'ADD_LIST', listId: nl.id, payload: nl});
   };
 
-  const removeList = (n) => {
-    setLists(lists.slice(0,n).concat(lists.slice(n+1,lists.length)));
+  const removeList = (listID) => {
+    dispatch({type: 'REMOVE_LIST', listId: listID, payload: null});
   };
   
   return (
+    <>
+    <ListDispatchContext.Provider value={dispatch}>
+    <div className="calendar">
+      <Week />
+    </div>
+    <hr style={{width: "90vw"}}/>
     <div className="todoboard">
     {lists.length > 0 &&
       <>
       {lists.map( (list, index) => (
         <Todolist
+          list={list}
           key={list.id}
           id={list.id}
           getId={getId} 
-          onDeleteClick={() => removeList(index)}
+          onDeleteClick={() => removeList(list.id)}
         />
       ))}
       </>
@@ -204,6 +292,8 @@ const Todoboard = (props) => {
       onClick={addList}
     >{"+ Add another list"}</button>
     </div>
+    </ListDispatchContext.Provider>
+    </>
   )
 };
 

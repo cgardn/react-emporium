@@ -12,7 +12,7 @@ const utils = {
     'December'
   ],
   dayNames: [
-    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
   ],
 
   thisMonth: () => {
@@ -23,11 +23,7 @@ const utils = {
 
 const Day = (props) => {
   return (
-    <div className={
-      props.today ? "calendar-day calendar-day-today" : "calendar-day"}>
-      <div className="calendar-day-number">
-        {props.number}
-      </div>
+    <div className="calendar-day">
       <div className="calendar-day-name">
         {utils.dayNames[props.day]}
       </div>
@@ -90,11 +86,9 @@ const Week = (props) => {
   return (
     <>
     <div className="calendar-container">
-      {weekNums(props.displayDay).map( (item, index) => (
+      {[0,1,2,3,4,5,6].map( (item, index) => (
         <Day
           key={index+1}
-          number={item[0]}
-          today={item[1]}
           day={index}
         />
       ))}
@@ -134,21 +128,8 @@ const Calendar = (props) => {
 
   return (
     <div className="calendar">
-    <Weekswitcher
-      previousWeek={handlePreviousWeek}
-      nextWeek={handleNextWeek}
-      handleReturnToToday={handleReturnToToday}
-      year={currentDay.getFullYear()}
-      weekstart={[
-        getWeekStart(displayDay).getMonth(),
-        getWeekStart(displayDay).getDate()]}
-      weekend={[
-        getWeekEnd(displayDay).getMonth(),
-        getWeekEnd(displayDay).getDate()]}
-    />
     <Week 
       displayDay={displayDay}
-      currentDay={currentDay}
       day={displayDay.getDay()}
     />
     </div>
