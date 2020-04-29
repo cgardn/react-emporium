@@ -3,18 +3,28 @@ import './Todoboard.css';
 
 // TODO-next steps
 //  - limit number of lists before bumping to next line
-//  - top-level todoboard state is shallow, doesn't include
-//    list items, need top-level state object that includes
-//    everything, including all items assigned to whatever
-//    date
+//    - CSS issue, next line goes off the page - need to 
+//      keep the app to viewport size since the lower-half
+//      list area is scrollable, but the whole page is not
 //  - work on dragging items around
-//    - make list items draggable
 //    - make calendar days drag targets
+//      - also make "list-container" on the days
+// TODO-bugs
+//  - dragging onto same list deletes the item, check if drop
+//    target is the same place it started and cancel drag in
+//    that case - probably do this before dispatch
+//  - need to specifically stop dragging when label in edit
+//    mode
+//  - got one error about identical keys after a drag, look
+//    into that
 
 const Day = (props) => {
-    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
   return (
-    <div className="calendar-day">
+    <div
+      className="calendar-day"
+    >
       <div className="calendar-day-name">
         {dayNames[props.day]}
       </div>
@@ -23,9 +33,24 @@ const Day = (props) => {
 };
 
 const Week = () => {
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData("listItem"));
+    event.preventDefault();
+  };
+
   return (
     <>
-    <div className="calendar-container">
+    <div
+      className="calendar-container"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      
+    >
+
       {[0,1,2,3,4,5,6].map( (item, index) => (
         <Day
           key={index+1}
@@ -88,9 +113,19 @@ const Editlabel = (props) => {
 const Listitem = (props) => {
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
 
+  const handleDragStart = (event) => {
+    const data = JSON.stringify( {
+      itemId: props.id,
+      content: props.content
+    });
+    event.dataTransfer.setData('listItem', data);
+  };
+
   return (
     <div
       className="list-item"
+      draggable="true"
+      onDragStart={handleDragStart}
     >
       <Editlabel
         class={"list-item-objects list-item-label"}
@@ -118,6 +153,54 @@ const Listitem = (props) => {
 
 const Todolist = (props) => {
   const dispatch = React.useContext(ListDispatchContext);
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData("listItem"));
+    dispatch({
+      type: 'ADD_TODO',
+      id: props.id,
+      payload: {id: data.itemId, content: data.content}
+    });
+    event.preventDefault();
+  };
+
+  const handleDragStart = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData('listitem'));
+    console.log(data);
+    const newData = JSON.stringify( {
+      ...data,
+      listId: props.id,
+    });
+    event.dataTransfer.setData('listItem', newData);
+  };
+
+  const handleDragEnd = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData('listitem'));
+    switch (event.dataTransfer.dropEffect) {
+      case 'none':
+        console.log("drag unsuccessful");
+        break;
+      case 'move':
+        dispatch({
+          type: 'REMOVE_TODO',
+          listId: data.listId,
+          itemId: data.itemId
+        });
+        break;
+      default:
+        console.log("default dragend case");
+    }
+
+    if (event.dataTransfer.dropEffect !== 'none') {
+      console.log("drop successful, type: ", event.dataTransfer.dropEffect);
+    } else {
+      console.log("drop unsuccessful");
+    }
+  };
 
   const changeItem = (id, newContent) => {
     dispatch({
@@ -166,7 +249,13 @@ const Todolist = (props) => {
           onClick={props.onDeleteClick}
         >X</button>
       </div>
-      <div className="list-content">
+      <div
+        className="list-content"
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
         {props.list.items.map( (item, index) => (
           <Listitem
             key={item.id}
