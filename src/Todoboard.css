@@ -8,6 +8,7 @@
 .calendar-day {
   display: flex;
   justify-content: flex-start;
+  flex-direction: row;
   width: 14%;
   flex: 0 0 14%;
   border: thin solid #eee;

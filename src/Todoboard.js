@@ -1,5 +1,6 @@
 import React from 'react';
 import './Todoboard.css';
+import DragItem from './Draggable';
 
 // TODO-next steps
 //  - limit number of lists before bumping to next line
@@ -10,51 +11,95 @@ import './Todoboard.css';
 //    - make calendar days drag targets
 //      - also make "list-container" on the days
 // TODO-bugs
-//  - dragging onto same list deletes the item, check if drop
-//    target is the same place it started and cancel drag in
-//    that case - probably do this before dispatch
-//  - need to specifically stop dragging when label in edit
-//    mode
-//  - got one error about identical keys after a drag, look
-//    into that
 
 const Day = (props) => {
+  const dispatch = React.useContext(ListDispatchContext);
   const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDragStart = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData('listItem'));
+    const newData = JSON.stringify( {
+      ...data,
+      fromListId: props.id,
+    });
+    event.dataTransfer.setData('listItem', newData);
+  };
+
+  const handleDrop = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData('listItem'));
+
+    if (data.fromListId === props.id) {
+      console.log("same list, cancel drop");
+      return;
+    };
+    dispatch({
+      type: 'ADD_TODO',
+      id: props.id,
+      payload: {id: data.itemId, content: data.content}
+    });
+    dispatch({
+      type: 'REMOVE_TODO',
+      listId: data.fromListId,
+      itemId: data.itemId,
+    });
+  };
+
+  const changeItem = (id, newContent) => {
+    dispatch({
+      type: 'UPDATE_TODO',
+      listId: props.id,
+      itemId: id,
+      payload: newContent
+    });
+  };
+
+  const removeItem = (id) => {
+    dispatch({type: 'REMOVE_TODO', listId: props.id, itemId: id});
+  };
 
   return (
     <div
       className="calendar-day"
+      onDragOver={handleDragOver}
+      onDragStart={handleDragStart}
+      onDrop={handleDrop}
     >
       <div className="calendar-day-name">
         {dayNames[props.day]}
+      </div>
+      <div className="list-content">
+        <>
+      {props.items.map( (item, index) => (
+        <Listitem
+          key={item.id}
+          id={item.id}
+          content={item.content}
+          onChange={changeItem}
+          onDeleteClick={() => removeItem(item.id)}
+        />
+      ))}
+        </>
       </div>
     </div>
   );
 };
 
-const Week = () => {
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData("listItem"));
-    event.preventDefault();
-  };
+const Week = (props) => {
 
   return (
     <>
-    <div
-      className="calendar-container"
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-      
-    >
-
-      {[0,1,2,3,4,5,6].map( (item, index) => (
+    <div className="calendar-container" >
+      {props.lists.map( (item, index) => (
+        (index <= 6) &&
         <Day
-          key={index+1}
+          key={index}
           day={index}
+          items={item.items}
+          id={item.id}
         />
       ))}
     </div>
@@ -81,29 +126,29 @@ const Editlabel = (props) => {
   // - receives id as prop, to be sent back to parent onChange, to change correct list item content
   // - receives function references as props:
   //    + change function for lifting state back up to parent 
-  const [isEdit, setIsEdit] = React.useState(false);
 
   return (
     <>
-    {isEdit === true
+    {props.isEdit === true
       ? <form 
           onSubmit={event => {
             event.preventDefault()
-            setIsEdit(false)}
+            props.setIsEdit(false)}
           }
         >
           <input
             className={props.class}
             value={props.content}
             autoFocus={true}
+            onFocus={event => event.target.select()}
             onChange={event => props.onChange(props.id, event.target.value)}
-            onBlur={event => setIsEdit(false)}
+            onBlur={event => props.setIsEdit(false)}
           >
           </input>
         </form>
       : <span 
           className={props.class}
-          onClick={event => setIsEdit(true)}
+          onClick={event => props.setIsEdit(true)}
         >{props.content}</span>
     }
     </>
@@ -112,6 +157,7 @@ const Editlabel = (props) => {
 
 const Listitem = (props) => {
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
+  const [isEdit, setIsEdit] = React.useState(false);
 
   const handleDragStart = (event) => {
     const data = JSON.stringify( {
@@ -124,7 +170,7 @@ const Listitem = (props) => {
   return (
     <div
       className="list-item"
-      draggable="true"
+      draggable={isEdit ? "false" : "true"}
       onDragStart={handleDragStart}
     >
       <Editlabel
@@ -132,6 +178,8 @@ const Listitem = (props) => {
         id={props.id}
         content={props.content}
         onChange={props.onChange}
+        isEdit={isEdit}
+        setIsEdit={setIsEdit}
       />
       <button
         className="deleteItemButton list-item-objects"
@@ -155,51 +203,36 @@ const Todolist = (props) => {
   const dispatch = React.useContext(ListDispatchContext);
 
   const handleDragOver = (event) => {
-    event.preventDefault();
+    event.preventDefault();  
   };
 
   const handleDrop = (event) => {
     const data = JSON.parse(event.dataTransfer.getData("listItem"));
+
+    if (data.fromListId === props.id) {
+      console.log("same list, cancel drop");
+      return;
+    };
     dispatch({
       type: 'ADD_TODO',
       id: props.id,
       payload: {id: data.itemId, content: data.content}
     });
-    event.preventDefault();
+    dispatch({
+      type: 'REMOVE_TODO',
+      listId: data.fromListId,
+      itemId: data.itemId,
+    });
   };
 
   const handleDragStart = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData('listitem'));
-    console.log(data);
+    const data = JSON.parse(event.dataTransfer.getData('listItem'));
     const newData = JSON.stringify( {
       ...data,
-      listId: props.id,
+      fromListId: props.id,
     });
+    event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData('listItem', newData);
-  };
-
-  const handleDragEnd = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData('listitem'));
-    switch (event.dataTransfer.dropEffect) {
-      case 'none':
-        console.log("drag unsuccessful");
-        break;
-      case 'move':
-        dispatch({
-          type: 'REMOVE_TODO',
-          listId: data.listId,
-          itemId: data.itemId
-        });
-        break;
-      default:
-        console.log("default dragend case");
-    }
-
-    if (event.dataTransfer.dropEffect !== 'none') {
-      console.log("drop successful, type: ", event.dataTransfer.dropEffect);
-    } else {
-      console.log("drop unsuccessful");
-    }
   };
 
   const changeItem = (id, newContent) => {
@@ -237,6 +270,7 @@ const Todolist = (props) => {
 
   return (
     <div className="list">
+      {props.hasTitle &&
       <div className="title">
         <Editlabel
           class={"list-title"}
@@ -249,11 +283,11 @@ const Todolist = (props) => {
           onClick={props.onDeleteClick}
         >X</button>
       </div>
+      }
       <div
         className="list-content"
         onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
+        onDragOver={event => handleDragOver(event)}
         onDrop={handleDrop}
       >
         {props.list.items.map( (item, index) => (
@@ -275,7 +309,6 @@ const Todolist = (props) => {
   );
 };
 
-const initialListState = [];
 const listReducer = (state, action) => {
   switch(action.type) {
     case 'ADD_TODO':
@@ -325,9 +358,20 @@ const listReducer = (state, action) => {
 };
 
 const ListDispatchContext = React.createContext(null);
+//const initialListState = [];
+const initialListState = [
+  {id: 'm', items: []},
+  {id: 't', items: []},
+  {id: 'w', items: []},
+  {id: 'r', items: []},
+  {id: 'f', items: []},
+  {id: 's', items: []},
+  {id: 'u', items: []},
+];
 
 const Todoboard = (props) => {
   const [lists, dispatch] = React.useReducer(listReducer, initialListState);
+//  const [days, dayDispatch] = React.useReducer(listReducer, initialDayState);
   const [nextItemId, setNextItemId] = React.useState(0);
 
   const getId = () => {
@@ -353,25 +397,55 @@ const Todoboard = (props) => {
   const removeList = (listID) => {
     dispatch({type: 'REMOVE_LIST', listId: listID, payload: null});
   };
-  
+ /* 
+          <Day
+            key={index}
+            day={index}
+            items={item.items}
+            id={item.id}
+          />
+          */
+  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
   return (
     <>
     <ListDispatchContext.Provider value={dispatch}>
     <div className="calendar">
-      <Week />
+      <div className="calendar-container" >
+        {lists.map( (list, index) => (
+          (index <= 6) &&
+            <div className="calendar-day">
+              <>
+              <div className="calendar-day-name">
+                {dayNames[index]}
+              </div>
+              <Todolist
+                hasTitle={false}
+                list={list}
+                key={list.id}
+                id={list.id}
+                getId={getId}
+                onDeleteClick={() => removeList(list.id)}
+              />
+              </>
+            </div>
+        ))}
+      </div>
     </div>
     <hr style={{width: "90vw"}}/>
     <div className="todoboard">
     {lists.length > 0 &&
       <>
       {lists.map( (list, index) => (
+        (index > 6) && 
         <Todolist
+          hasTitle={true}
           list={list}
           key={list.id}
           id={list.id}
           getId={getId} 
           onDeleteClick={() => removeList(list.id)}
         />
+         
       ))}
       </>
     }
