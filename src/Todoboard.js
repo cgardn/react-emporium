@@ -166,7 +166,7 @@ const Editlabel = (props) => {
 
 const Listitem = (props) => {
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
-  const [isEdit, setIsEdit] = React.useState(false);
+  const [isEdit, setIsEdit] = React.useState(true);
 
   const handleDragStart = (event) => {
     const data = JSON.stringify( {
