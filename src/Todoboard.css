@@ -1,3 +1,9 @@
+/* Globals */
+:root {
+  --list-bg-color: #ddd;
+  --list-content-color: #f9f9f9;
+}
+
 .calendar {
   display: flex;
   flex-direction: column;
@@ -5,17 +11,19 @@
   height: 30%;
 }
 
-.calendar-day {
+.calendar-individual {
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
   width: 14%;
   flex: 0 0 auto;
   border: thin solid #bbb;
-  background-color: #ddd;
+  border-radius: 7px;
+  background-color: var(--list-bg-color);
 }
 
 .calendar-container {
+  justify-content: space-between;
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
@@ -24,13 +32,13 @@
   align-self: center;
 }
 
-.calendar-day-name {
+.calendar-individual-title {
   margin: 6px 5px;
   padding: 0;
   font-size: 0.8rem;
 }
 
-.todoboard {
+.todo-container {
   display: flex;
   width: 90vw;
   align-self: center;
@@ -42,21 +50,29 @@
   overflow-y: auto;
 }
 
-.list {
-  background-color: #f9f9f9;
-  border: thin solid #f1f1f1;
-  padding: 0 10px;
+.todo-individual {
+  background-color: var(--list-bg-color);
+  border: thin solid #bbb;
+  border-radius: 7px;
   margin: 0 10px 10px 0;
   display: flex;
   flex-direction: column;
-  flex-basis: auto;
+  flex: 0 0 auto;
   width: 20%;
   height: 90%;
 }
 
+.todo-list {
+  background-color: var(--list-content-color);
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  flex-basis: auto;
+  height: 100%;
+}
+
 .calendar-list {
-  background-color: #f9f9f9;
-  border: thin solid #f1f1f1;
+  background-color: var(--list-content-color);
   padding: 0 10px;
   margin: 0;
   display: flex;
@@ -65,13 +81,12 @@
   height: 90%;
 }
 
-.title {
+.todo-individual-title {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   font-size: 1.5rem;
-  margin-bottom: 5px;
-  margin-top: 3px;
+  margin: 6px 5px;
 }
 
 .list-delete-button {
@@ -93,7 +108,8 @@
 }
 
 .list-item-label {
-  flex: 1;
+  width: 100%;
+  flex: 1 1 auto;
 }
 
 .list-item-objects {
@@ -104,15 +120,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   margin-bottom: 8px;
   padding: 0px 10px;
-  margin-right: 3px;
-  font-family: sans-serif;
-  background-color: #eee;
+
+  border-bottom: thin solid #bbb;
+  border-radius: 3px;
+
+  background-color: var(--list-bg-color);
+  font-family: "Verdana", "Arial", sans-serif;
+  font-size: 0.8rem;
+}
+
+.list-item:hover {
+  background-color: #e9e9e9;
+  cursor: pointer;
 }
 
 .addListButton {
+  font-family: "Verdana", "Arial", sans-serif;
+  font-size: 1rem;
   margin-top: 20px;
+  padding: 10px 10px 10px 7px;
+  border-radius: 5px;
+  border: thin solid #bbb;
 }
 
 .item-menu {
@@ -132,15 +163,21 @@
   margin-bottom: 4px;
   flex: 0 0 auto;
   width: auto;
+  border: none;
+  background: transparent;
+}
+
+.addItemButton:hover {
+  background-color: #999;
 }
 
 .deleteItemButton {
-  margin: 0;
-  padding: 10px 0;
   background: transparent;
-  color: #909090;
-  font-size: 8px;
+  font-size: 4px;
   border: none;
   cursor: pointer;
+}
 
+.deleteItemButton:hover {
+  background-color: #999;
 }

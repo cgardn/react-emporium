@@ -1,6 +1,5 @@
 import React from 'react';
 import './Todoboard.css';
-import DragItem from './Draggable';
 
 // TODO-next steps
 //  - limit number of lists before bumping to next line
@@ -21,100 +20,6 @@ import DragItem from './Draggable';
 //    - look at main Todoboard component, its huge
 // TODO-bugs
 
-const Day = (props) => {
-  const dispatch = React.useContext(ListDispatchContext);
-  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  const handleDragStart = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData('listItem'));
-    const newData = JSON.stringify( {
-      ...data,
-      fromListId: props.id,
-    });
-    event.dataTransfer.setData('listItem', newData);
-  };
-
-  const handleDrop = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData('listItem'));
-
-    if (data.fromListId === props.id) {
-      console.log("same list, cancel drop");
-      return;
-    };
-    dispatch({
-      type: 'ADD_TODO',
-      id: props.id,
-      payload: {id: data.itemId, content: data.content}
-    });
-    dispatch({
-      type: 'REMOVE_TODO',
-      listId: data.fromListId,
-      itemId: data.itemId,
-    });
-  };
-
-  const changeItem = (id, newContent) => {
-    dispatch({
-      type: 'UPDATE_TODO',
-      listId: props.id,
-      itemId: id,
-      payload: newContent
-    });
-  };
-
-  const removeItem = (id) => {
-    dispatch({type: 'REMOVE_TODO', listId: props.id, itemId: id});
-  };
-
-  return (
-    <div
-      className="calendar-day"
-      onDragOver={handleDragOver}
-      onDragStart={handleDragStart}
-      onDrop={handleDrop}
-    >
-      <div className="calendar-day-name">
-        {dayNames[props.day]}
-      </div>
-      <div className="list-content">
-        <>
-      {props.items.map( (item, index) => (
-        <Listitem
-          key={item.id}
-          id={item.id}
-          content={item.content}
-          onChange={changeItem}
-          onDeleteClick={() => removeItem(item.id)}
-        />
-      ))}
-        </>
-      </div>
-    </div>
-  );
-};
-
-const Week = (props) => {
-
-  return (
-    <>
-    <div className="calendar-container" >
-      {props.lists.map( (item, index) => (
-        (index <= 6) &&
-        <Day
-          key={index}
-          day={index}
-          items={item.items}
-          id={item.id}
-        />
-      ))}
-    </div>
-    </>
-  );
-};
 
 const Itemmenu = (props) => {
   return (
@@ -131,10 +36,6 @@ const Itemmenu = (props) => {
 
 const Editlabel = (props) => {
   // Editable label, a span that replaces itself with an Input box on click
-  // - receives content of box or span as a prop
-  // - receives id as prop, to be sent back to parent onChange, to change correct list item content
-  // - receives function references as props:
-  //    + change function for lifting state back up to parent 
 
   return (
     <>
@@ -194,7 +95,7 @@ const Listitem = (props) => {
         className="deleteItemButton list-item-objects"
         onClick={event => setContextMenu([event.pageX, event.pageY, !contextMenu[2]])}
       >
-      {String.fromCharCode(9899) + String.fromCharCode(9899) + String.fromCharCode(9899)}
+      {String.fromCharCode(9899) + ' ' + String.fromCharCode(9899) + ' ' + String.fromCharCode(9899)}
       </button>
       {contextMenu[2] && 
         <Itemmenu
@@ -210,6 +111,7 @@ const Listitem = (props) => {
 
 const Todolist = (props) => {
   const dispatch = React.useContext(ListDispatchContext);
+  const [isTitleEdit, setTitleEdit] = React.useState(false);
 
   const handleDragOver = (event) => {
     event.preventDefault();  
@@ -282,10 +184,12 @@ const Todolist = (props) => {
       {props.hasTitle &&
       <div className="title">
         <Editlabel
-          class={"list-title"}
+          class={""}
           id={props.list.id}
           content={props.list.title}
           onChange={changeListTitle}
+          isEdit={isTitleEdit}
+          setIsEdit={setTitleEdit}
         />
         <button
           className="list-delete-button"
@@ -367,7 +271,6 @@ const listReducer = (state, action) => {
 };
 
 const ListDispatchContext = React.createContext(null);
-//const initialListState = [];
 const initialListState = [
   {id: 'm', items: []},
   {id: 't', items: []},
@@ -380,7 +283,6 @@ const initialListState = [
 
 const Todoboard = (props) => {
   const [lists, dispatch] = React.useReducer(listReducer, initialListState);
-//  const [days, dayDispatch] = React.useReducer(listReducer, initialDayState);
   const [nextItemId, setNextItemId] = React.useState(0);
 
   const getId = () => {
@@ -406,14 +308,7 @@ const Todoboard = (props) => {
   const removeList = (listID) => {
     dispatch({type: 'REMOVE_LIST', listId: listID, payload: null});
   };
- /* 
-          <Day
-            key={index}
-            day={index}
-            items={item.items}
-            id={item.id}
-          />
-          */
+
   const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
   return (
     <>
@@ -422,9 +317,9 @@ const Todoboard = (props) => {
       <div className="calendar-container" >
         {lists.map( (list, index) => (
           (index <= 6) &&
-            <div className="calendar-day">
+            <div className="calendar-individual" key={index+1000}>
               <>
-              <div className="calendar-day-name">
+              <div className="calendar-individual-title">
                 {dayNames[index]}
               </div>
               <Todolist
@@ -442,21 +337,27 @@ const Todoboard = (props) => {
       </div>
     </div>
     <hr style={{width: "90vw"}}/>
-    <div className="todoboard">
+    <div className="todo-container">
     {lists.length > 0 &&
       <>
       {lists.map( (list, index) => (
         (index > 6) && 
+        <div className="todo-individual" key={index+100}>
+        <>
+        <div className="todo-individual-title">
+          {list.title}
+        </div>
         <Todolist
-          thisClass={"list"}
-          hasTitle={true}
+          thisClass={"todo-list"}
+          hasTitle={false}
           list={list}
           key={list.id}
           id={list.id}
           getId={getId} 
           onDeleteClick={() => removeList(list.id)}
         />
-         
+        </>
+        </div>
       ))}
       </>
     }
@@ -464,7 +365,7 @@ const Todoboard = (props) => {
     <button
       className="addListButton"
       onClick={addList}
-    >{"+ Add another list"}</button>
+    >{"+ Add list"}</button>
     </div>
     </ListDispatchContext.Provider>
     </>
