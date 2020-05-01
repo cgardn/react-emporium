@@ -7,9 +7,18 @@ import DragItem from './Draggable';
 //    - CSS issue, next line goes off the page - need to 
 //      keep the app to viewport size since the lower-half
 //      list area is scrollable, but the whole page is not
-//  - work on dragging items around
-//    - make calendar days drag targets
-//      - also make "list-container" on the days
+//  - resize the lower lists, they're huge
+//  - make 3-dots on listitems a lot smaller
+//  - center the lower lists also
+//  - make the addItemButtons into inputs that you type into
+//  - make the addList button larger, or in it's own place
+//    - possibly move up to header-toolbar when I get to that
+//  - reorganize code, remove stuff that doesn't need to be
+//    here and compartmentalize things that don't need to
+//    know about each other
+//    - can probably move drag-and-drop stuff into its own
+//      wrapper component
+//    - look at main Todoboard component, its huge
 // TODO-bugs
 
 const Day = (props) => {
@@ -269,7 +278,7 @@ const Todolist = (props) => {
   };
 
   return (
-    <div className="list">
+    <div className={props.thisClass}>
       {props.hasTitle &&
       <div className="title">
         <Editlabel
@@ -304,7 +313,7 @@ const Todolist = (props) => {
         className={"addItemButton"}
         style={{ fontsize: '2rem' }}
         onClick={handleAdditemClick}
-      >{"+ Add an item"}</button>
+      >{"+"}</button>
     </div>
   );
 };
@@ -419,6 +428,7 @@ const Todoboard = (props) => {
                 {dayNames[index]}
               </div>
               <Todolist
+                thisClass={"calendar-list"}
                 hasTitle={false}
                 list={list}
                 key={list.id}
@@ -438,6 +448,7 @@ const Todoboard = (props) => {
       {lists.map( (list, index) => (
         (index > 6) && 
         <Todolist
+          thisClass={"list"}
           hasTitle={true}
           list={list}
           key={list.id}
