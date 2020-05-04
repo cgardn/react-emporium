@@ -33,6 +33,9 @@
 .todo-individual {
   width: 20%;
 }
+.calendar-container, .todo-container {
+  flex-wrap: wrap;
+}
 }
 
 .calendar {

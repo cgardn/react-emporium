@@ -19,6 +19,8 @@ import './Todoboard.css';
 //      wrapper component
 //    - look at main Todoboard component, its huge
 // TODO-bugs
+//
+// TODO-things to remember to save when 
 
 
 const Itemmenu = (props) => {
@@ -36,6 +38,7 @@ const Itemmenu = (props) => {
 
 const Editlabel = (props) => {
   // Editable label, a span that replaces itself with an Input box on click
+  const canEdit = React.useState(props.canEdit || true);
 
   return (
     <>
@@ -180,45 +183,60 @@ const Todolist = (props) => {
   };
 
   return (
-    <div className={props.thisClass}>
-      {props.hasTitle &&
-      <div className="title">
+    <>
+      <div className={`${props.thisClass}-individual-title`}>
+      {props.canEditTitle ?
         <Editlabel
           class={""}
           id={props.list.id}
-          content={props.list.title}
+          content={props.title}
           onChange={changeListTitle}
           isEdit={isTitleEdit}
           setIsEdit={setTitleEdit}
         />
+      : 
+        <Editlabel
+          class={""}
+          id={props.list.id}
+          content={props.title}
+          onChange={changeListTitle}
+          isEdit={false}
+          setIsEdit={() => {return;}}
+        />
+      }
+      
+      {props.canDelete &&
         <button
           className="list-delete-button"
           onClick={props.onDeleteClick}
         >X</button>
-      </div>
       }
-      <div
-        className="list-content"
-        onDragStart={handleDragStart}
-        onDragOver={event => handleDragOver(event)}
-        onDrop={handleDrop}
-      >
-        {props.list.items.map( (item, index) => (
-          <Listitem
-            key={item.id}
-            id={item.id}
-            content={item.content}
-            onChange={changeItem}
-            onDeleteClick={() => removeItem(item.id)}
-          />
-        ))}
       </div>
-      <button
-        className={"addItemButton"}
-        style={{ fontsize: '2rem' }}
-        onClick={handleAdditemClick}
-      >{"+"}</button>
-    </div>
+
+      <div className={`${props.thisClass}-list`}>
+        <div
+          className="list-content"
+          onDragStart={handleDragStart}
+          onDragOver={event => handleDragOver(event)}
+          onDrop={handleDrop}
+        >
+          {props.list.items.map( (item, index) => (
+            <Listitem
+              key={item.id}
+              id={item.id}
+              content={item.content}
+              onChange={changeItem}
+              onDeleteClick={() => removeItem(item.id)}
+            />
+          ))}
+        </div>
+        <button
+          className={"addItemButton"}
+          style={{ fontsize: '2rem' }}
+          onClick={handleAdditemClick}
+        >{"+"}</button>
+      </div>
+    </>
   );
 };
 
@@ -319,16 +337,16 @@ const Todoboard = (props) => {
           (index <= 6) &&
             <div className="calendar-individual" key={index+1000}>
               <>
-              <div className="calendar-individual-title">
-                {dayNames[index]}
-              </div>
               <Todolist
-                thisClass={"calendar-list"}
+                thisClass={"calendar"}
                 hasTitle={false}
                 list={list}
+                title={dayNames[index]}
                 key={list.id}
                 id={list.id}
                 getId={getId}
+                canDelete={false}
+                canEditTitle={false}
                 onDeleteClick={() => removeList(list.id)}
               />
               </>
@@ -344,16 +362,16 @@ const Todoboard = (props) => {
         (index > 6) && 
         <div className="todo-individual" key={index+100}>
         <>
-        <div className="todo-individual-title">
-          {list.title}
-        </div>
         <Todolist
-          thisClass={"todo-list"}
+          thisClass={"todo"}
           hasTitle={false}
+          canDelete={true}
           list={list}
+          title={list.title}
           key={list.id}
           id={list.id}
           getId={getId} 
+          canEditTitle={true}
           onDeleteClick={() => removeList(list.id)}
         />
         </>

@@ -1,6 +1,8 @@
 .app {
   display: flex;
   flex-direction: column;
+  overflow: auto;
   height: 100vh;
+  background-size: cover;
   background-color: lightblue;
 }
