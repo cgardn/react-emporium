@@ -2,16 +2,23 @@ import React from 'react';
 import './Todoboard.css';
 
 // TODO-next steps
-//  - limit number of lists before bumping to next line
-//    - CSS issue, next line goes off the page - need to 
-//      keep the app to viewport size since the lower-half
-//      list area is scrollable, but the whole page is not
+//
+//  IMMEDIATE/CURRENT
+//    - working on drag-to-reorder
+//      -> placeholder shadow works
+//      -> need way to track/update array order
+//      -> need to give listitems ondragover and tie it up
+//          to the array order through the main reducer
+//
 //  - resize the lower lists, they're huge
+//    - eventually make them resizeable
 //  - make 3-dots on listitems a lot smaller
-//  - center the lower lists also
+//    - eventually make them an img so avoid the weird reflow
+//  - center the lower lists also, but still build from left
 //  - make the addItemButtons into inputs that you type into
-//  - make the addList button larger, or in it's own place
-//    - possibly move up to header-toolbar when I get to that
+//  - give addList button a permanent home somewhere
+//    - up top in header/toolbar when i get there
+//    - possibly floating in lower corner?
 //  - reorganize code, remove stuff that doesn't need to be
 //    here and compartmentalize things that don't need to
 //    know about each other
@@ -19,8 +26,11 @@ import './Todoboard.css';
 //      wrapper component
 //    - look at main Todoboard component, its huge
 // TODO-bugs
-//
-// TODO-things to remember to save when 
+//  - Editlabel inputs are different size than the labels,
+//    causing minor reflow when swapping modes
+// TODO-things to remember to save when doing backend
+//  - list object minus edit states
+//  - current nextId for getId
 
 
 const Itemmenu = (props) => {
@@ -71,20 +81,28 @@ const Editlabel = (props) => {
 const Listitem = (props) => {
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
   const [isEdit, setIsEdit] = React.useState(true);
+  const [isPlaceholder, setIsPlaceholder] = React.useState(false);
 
   const handleDragStart = (event) => {
     const data = JSON.stringify( {
       itemId: props.id,
       content: props.content
     });
+    setIsPlaceholder(true);
     event.dataTransfer.setData('listItem', data);
   };
 
+  const handleDragEnd = (event) => {
+    setIsPlaceholder(false);
+  };
+
+  if (!isPlaceholder) {
   return (
     <div
       className="list-item"
       draggable={isEdit ? "false" : "true"}
       onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
       <Editlabel
         class={"list-item-objects list-item-label"}
@@ -110,6 +128,14 @@ const Listitem = (props) => {
       }
     </div>
   );
+  } else {
+    return (
+      <div 
+        className="list-item-placeholder"
+        onDragEnd={handleDragEnd}
+      ></div>
+    );
+  }
 };
 
 const Todolist = (props) => {
@@ -187,7 +213,7 @@ const Todolist = (props) => {
       <div className={`${props.thisClass}-individual-title`}>
       {props.canEditTitle ?
         <Editlabel
-          class={""}
+          class={"list-item-objects list-item-label"}
           id={props.list.id}
           content={props.title}
           onChange={changeListTitle}
@@ -196,7 +222,7 @@ const Todolist = (props) => {
         />
       : 
         <Editlabel
-          class={""}
+          class={"list-item-objects list-item-label"}
           id={props.list.id}
           content={props.title}
           onChange={changeListTitle}
@@ -301,7 +327,7 @@ const initialListState = [
 
 const Todoboard = (props) => {
   const [lists, dispatch] = React.useReducer(listReducer, initialListState);
-  const [nextItemId, setNextItemId] = React.useState(0);
+  const [nextItemId, setNextItemId] = React.useState(props.startId || 0);
 
   const getId = () => {
     const outId = nextItemId;
@@ -335,7 +361,7 @@ const Todoboard = (props) => {
       <div className="calendar-container" >
         {lists.map( (list, index) => (
           (index <= 6) &&
-            <div className="calendar-individual" key={index+1000}>
+            <div className="calendar-individual" key={list.id}>
               <>
               <Todolist
                 thisClass={"calendar"}
@@ -360,7 +386,7 @@ const Todoboard = (props) => {
       <>
       {lists.map( (list, index) => (
         (index > 6) && 
-        <div className="todo-individual" key={index+100}>
+        <div className="todo-individual" key={list.id}>
         <>
         <Todolist
           thisClass={"todo"}
