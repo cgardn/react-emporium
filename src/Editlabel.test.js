@@ -1,5 +1,6 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
+import {getByDisplayValue} from '@testing-library/dom';
 import Editlabel from './Editlabel';
 import {shallow} from 'enzyme';
 
@@ -8,7 +9,7 @@ it ('renders without crashing', () => {
   render(<Editlabel />, div);
 });
 
-it ('renders the content passed to it', () => {
+it ('renders content as plain text when isEdit is false', () => {
   const testMessage = "Text Content"
 
   render(<Editlabel 
@@ -18,10 +19,12 @@ it ('renders the content passed to it', () => {
   expect(screen.queryByText(testMessage)).toBeInTheDocument();
 });
 
-it ('renders a span when isEdit is false', () => {
-  const wrapper = shallow(<Editlabel
+it ('renders an input form when isEdit is true', () => {
+  const div = document.createElement('div');
+
+  render(<Editlabel
     content="test msg"
-    isEdit={false} />);
-  const out = <span>test msg</span>;
-  expect(wrapper.contains(out)).toEqual(true);
+    isEdit={true}
+    />, div);
+  expect(screen.getByDisplayValue("test msg")).toBeInTheDocument();
 });

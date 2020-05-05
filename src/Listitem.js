@@ -26,17 +26,32 @@ const Itemmenu = (props) => {
 };
 
 const Listitem = (props) => {
+  const [draggedItem, dragDispatch] = React.useContext(DragDispatchContext);
+  // State hooks
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
   const [isEdit, setIsEdit] = React.useState(true);
   const [isPlaceholder, setIsPlaceholder] = React.useState(false);
 
+  // Context consumers
+
   const handleDragStart = (event) => {
     const data = JSON.stringify( {
+      overIndex: props.index,
       itemId: props.id,
       content: props.content
     });
     setIsPlaceholder(true);
+    dragDispatch({
+      type: 'SET_DRAGGED_ITEM',
+      payload: {id: props.id}
+    });
+                
     event.dataTransfer.setData('listItem', data);
+    console.log(event.dataTransfer.getData("listItem"));
+  };
+
+  const handleDragOver = (event) => {
+    event.stopPropagation();
   };
 
   const handleDragEnd = (event) => {
@@ -50,6 +65,7 @@ const Listitem = (props) => {
       draggable={isEdit ? "false" : "true"}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
     >
       <Editlabel
         class={"list-item-objects list-item-label"}
@@ -80,6 +96,7 @@ const Listitem = (props) => {
       <div 
         className="list-item-placeholder"
         onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
       ></div>
     );
   }

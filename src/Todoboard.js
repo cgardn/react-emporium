@@ -38,11 +38,13 @@ import './Todoboard.css';
 //  - current nextId for getId
 
 const Todolist = (props) => {
-  const dispatch = React.useContext(ListDispatchContext);
+  const listDispatch = React.useContext(ListDispatchContext);
+  const itemDispatch = React.useContext(ItemDispatchContext);
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
   const handleDragOver = (event) => {
     event.preventDefault();  
+    event.stopPropagation();
   };
 
   const handleDrop = (event) => {
@@ -52,15 +54,13 @@ const Todolist = (props) => {
       console.log("same list, cancel drop");
       return;
     };
-    dispatch({
+    itemDispatch({
       type: 'ADD_TODO',
-      id: props.id,
-      payload: {id: data.itemId, content: data.content}
-    });
-    dispatch({
-      type: 'REMOVE_TODO',
-      listId: data.fromListId,
-      itemId: data.itemId,
+      payload: {
+        id: data.itemId, 
+        index: 0,
+        belongsTo: props.id,
+        content: data.content}
     });
   };
 
@@ -75,36 +75,50 @@ const Todolist = (props) => {
   };
 
   const changeItem = (id, newContent) => {
-    dispatch({
-      type: 'UPDATE_TODO',
-      listId: props.id,
+    itemDispatch({
+      type: 'UPDATE_TODO_CONTENT',
       itemId: id,
       payload: newContent
     });
   };
 
   const removeItem = (id) => {
-    dispatch({type: 'REMOVE_TODO', listId: props.id, itemId: id});
-  };
-
-  const newItem = (content) => {
-    return {
-      content: content,
-      id: props.getId(),
-    };
+    itemDispatch({
+      type: 'REMOVE_TODO',
+      itemId: id,
+    });
   };
 
   const handleAdditemClick = () => {
-    const ni = newItem("Click to edit");
-    dispatch({type: 'ADD_TODO', id: props.id, payload: ni});
+    itemDispatch({
+      type: 'ADD_TODO',
+      payload: {
+        id: props.getId(),
+        index: props.getSize(props.id),
+        belongsTo: props.id,
+        content: "Click to edit"}
+    });
   };
 
   const changeListTitle = (id, content) => {
-    dispatch({
+    listDispatch({
       type: 'UPDATE_LIST_TITLE',
       id: id,
       payload: content
     });
+  };
+
+  const handleSwapItems = (event) => {
+    const data = JSON.parse(event.dataTransfer.getData("listitem"));
+    console.log(data);
+    /*
+    dispatch({
+      type: 'SWAP_TODOS',
+      overId: data.overId,
+      underId: data.underId,
+      listId: props.id
+    });
+    */
   };
 
   return (
@@ -113,7 +127,7 @@ const Todolist = (props) => {
       {props.canEditTitle ?
         <Editlabel
           class={"list-item-objects list-item-label"}
-          id={props.list.id}
+          id={props.id}
           content={props.title}
           onChange={changeListTitle}
           isEdit={isTitleEdit}
@@ -122,7 +136,7 @@ const Todolist = (props) => {
       : 
         <Editlabel
           class={"list-item-objects list-item-label"}
-          id={props.list.id}
+          id={props.id}
           content={props.title}
           onChange={changeListTitle}
           isEdit={false}
@@ -145,11 +159,13 @@ const Todolist = (props) => {
           onDragOver={event => handleDragOver(event)}
           onDrop={handleDrop}
         >
-          {props.list.items.map( (item, index) => (
+          {props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
             <Listitem
               key={item.id}
               id={item.id}
+              index={item.index}
               content={item.content}
+              swapItems={handleSwapItems}
               onChange={changeItem}
               onDeleteClick={() => removeItem(item.id)}
             />
@@ -167,35 +183,6 @@ const Todolist = (props) => {
 
 const listReducer = (state, action) => {
   switch(action.type) {
-    case 'ADD_TODO':
-      return state.map( list => {
-        if (list.id === action.id) {
-          return { ...list, items: [...list.items, action.payload]};
-        } else {
-          return list;
-        }
-      });
-    case 'REMOVE_TODO':
-      return state.map( list => {
-        if (list.id === action.listId) {
-          return { ...list, items: list.items.filter( item => item.id !== action.itemId)}
-        } else {
-          return list;
-        }
-      });
-    case 'UPDATE_TODO':
-      return state.map( list => {
-        if (list.id === action.listId) {
-          return {...list, items: list.items.map( item => {
-            if (item.id === action.itemId) {
-              return {...item, content: action.payload}
-            } else {
-              return item
-            }
-          })};
-        } else {
-          return list;
-        }});
     case 'ADD_LIST':
       return [ ...state, action.payload ];
     case 'REMOVE_LIST':
@@ -213,19 +200,109 @@ const listReducer = (state, action) => {
   }
 };
 
+const itemReducer = (state, action) => {
+  switch(action.type) {
+    case 'ADD_TODO':
+      return [...state, action.payload];
+    case 'REMOVE_TODO':
+      // filters out item with specified ID, then remaps 
+      //   remaining items' index properties to fill gaps
+      return state.filter(item => item.id !== action.itemId).map( (item, index) => {
+        return {...item, index: index}
+      });
+    case 'UPDATE_TODO_CONTENT':
+      return state.map( item => {
+        if (item.id === action.itemId) {
+          return {...item, content: action.payload}
+        } else {
+          return item
+        }
+      });
+    case 'SWAP_TODO_ORDER':
+      // receives two item ids, swaps their index values
+      return state;
+    case 'UPDATE_TODO_OWNER':
+      return state.map( item => {
+        if (item.id === action.itemId) {
+          return {...item, belongsTo: action.newOwner}
+        } else {
+          return item
+        }
+      });
+    default:
+      return state;
+  }
+};
+
+const dragReducer = (state, action) => {
+  switch(action.type) {
+    case 'SET_DRAGGED_ITEM':
+      return action.payload;
+    case 'CLEAR_DRAGGED_ITEM':
+      return {};
+    default:
+      return state;
+    }
+};
+
 const ListDispatchContext = React.createContext(null);
+const ItemDispatchContext = React.createContext(null);
+const DragDispatchContext = React.createContext(null);
+
+// Data architecture:
+//  Three reducers:
+//  - listReducer: An array of JS Objects
+//      - id: Integer, unique within the application
+//      - title: String, title of the list
+//  - itemReducer: An array of item objects:
+//      - id: Integer, unique within the application
+//      - belongsTo: Integer, id of the list that owns this 
+//      - content: String, the actual todo-text input by user
+//      - index: order placement on the list
+//  - dragReducer: holds copy of current dragged item
+//      - item: Object, dragged item
+//  
+//  * Dragged item information is tracked outside of the 
+//    built-in event.dataTransfer object, because the HTML5
+//    drag-and-drop spec does not allow dataTransfer to be
+//    accessed during a dragOver event. However, I need to 
+//    know which item is being dragged over so I can update
+//    it's owning list, and index/order in the list, as the
+//    user drags the item around - allowing for visual 
+//    feedback in the form of a placeholder/shadow item
+//    underneath the user's cursor.
+// 
+//  There are a handful of properties that don't get stored
+//    in the reducer, for example whether a list can be 
+//    deleted - this is hardcoded off for the weekdays, and
+//    on for everything else. May change in the future.
+//
+//  Lists also receive their current number of items as a prop
+//    for passing through itemDispatch to set correct item 
+//    order (new items are assigned index=listSize)
+//
+//  The board is constructed by referencing both reducers to
+//    get the lists and their items, pulling item content out
+//    of the item reducer along the way.
+
 const initialListState = [
-  {id: 'm', items: []},
-  {id: 't', items: []},
-  {id: 'w', items: []},
-  {id: 'r', items: []},
-  {id: 'f', items: []},
-  {id: 's', items: []},
-  {id: 'u', items: []},
+  {id: 'm', title: "Monday"},
+  {id: 't', title: "Tuesday"},
+  {id: 'w', title: "Wednesday"},
+  {id: 'r', title: "Thursday"},
+  {id: 'f', title: "Friday"},
+  {id: 's', title: "Saturday"},
+  {id: 'u', title: "Sunday"},
 ];
 
+const initialItemState = [];
+const initialDragState = {};
+
 const Todoboard = (props) => {
-  const [lists, dispatch] = React.useReducer(listReducer, initialListState);
+  const [lists, listDispatch] = React.useReducer(listReducer, initialListState);
+  const [items, itemDispatch] = React.useReducer(itemReducer, initialItemState);
+  const [draggedItem, dragDispatch] = React.useReducer(dragReducer, initialDragState);
+
   const [nextItemId, setNextItemId] = React.useState(props.startId || 0);
 
   const getId = () => {
@@ -238,24 +315,40 @@ const Todoboard = (props) => {
     const outList = {
       title: "New List",
       id: getId(),
-      items: []
     };
     return outList;
   };
 
   const addList = () => {
     const nl = newList();
-    dispatch({type: 'ADD_LIST', listId: nl.id, payload: nl});
+    listDispatch({type: 'ADD_LIST', listId: nl.id, payload: nl});
   };
 
-  const removeList = (listID) => {
-    dispatch({type: 'REMOVE_LIST', listId: listID, payload: null});
+  const removeList = (listId) => {
+    // remove a lists items first to prevent orphaned data
+    items.map( item =>  {
+      if (item.belongsTo === listId) {
+        itemDispatch({
+          type: 'REMOVE_TODO',
+          itemId: item.id
+        });
+      }
+    });
+    
+    listDispatch({type: 'REMOVE_LIST', listId: listId});
+    
   };
 
-  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  const getListSize = (listId) => {
+    const ownedItems = items.filter( item => item.belongsTo === listId)
+    return ownedItems.length;
+  };
+
   return (
     <>
-    <ListDispatchContext.Provider value={dispatch}>
+    <ListDispatchContext.Provider value={listDispatch}>
+    <ItemDispatchContext.Provider value={itemDispatch}>
+    <DragDispatchContext.Provider value={[draggedItem, dragDispatch]}>
     <div className="calendar">
       <div className="calendar-container" >
         {lists.map( (list, index) => (
@@ -264,12 +357,12 @@ const Todoboard = (props) => {
               <>
               <Todolist
                 thisClass={"calendar"}
-                hasTitle={false}
-                list={list}
-                title={dayNames[index]}
+                title={list.title}
                 key={list.id}
                 id={list.id}
                 getId={getId}
+                items={items}
+                getSize={getListSize}
                 canDelete={false}
                 canEditTitle={false}
                 onDeleteClick={() => removeList(list.id)}
@@ -289,12 +382,12 @@ const Todoboard = (props) => {
         <>
         <Todolist
           thisClass={"todo"}
-          hasTitle={false}
           canDelete={true}
-          list={list}
           title={list.title}
           key={list.id}
           id={list.id}
+          items={items}
+          getSize={getListSize}
           getId={getId} 
           canEditTitle={true}
           onDeleteClick={() => removeList(list.id)}
@@ -310,6 +403,8 @@ const Todoboard = (props) => {
       onClick={addList}
     >{"+ Add list"}</button>
     </div>
+    </DragDispatchContext.Provider>
+    </ItemDispatchContext.Provider>
     </ListDispatchContext.Provider>
     </>
   )
