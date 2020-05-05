@@ -40,38 +40,18 @@ import './Todoboard.css';
 const Todolist = (props) => {
   const listDispatch = React.useContext(ListDispatchContext);
   const itemDispatch = React.useContext(ItemDispatchContext);
+  const [draggedItem, dragDispatch] = React.useContext(DragDispatchContext);
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
   const handleDragOver = (event) => {
     event.preventDefault();  
     event.stopPropagation();
-  };
-
-  const handleDrop = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData("listItem"));
-
-    if (data.fromListId === props.id) {
-      console.log("same list, cancel drop");
-      return;
-    };
     itemDispatch({
-      type: 'ADD_TODO',
-      payload: {
-        id: data.itemId, 
-        index: 0,
-        belongsTo: props.id,
-        content: data.content}
+      type: 'UPDATE_TODO_OWNER',
+      itemId: draggedItem.id,
+      newOwner: props.id,
+      index: props.getSize(props.id),
     });
-  };
-
-  const handleDragStart = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData('listItem'));
-    const newData = JSON.stringify( {
-      ...data,
-      fromListId: props.id,
-    });
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData('listItem', newData);
   };
 
   const changeItem = (id, newContent) => {
@@ -155,9 +135,7 @@ const Todolist = (props) => {
       <div className={`${props.thisClass}-list`}>
         <div
           className="list-content"
-          onDragStart={handleDragStart}
           onDragOver={event => handleDragOver(event)}
-          onDrop={handleDrop}
         >
           {props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
             <Listitem
@@ -247,7 +225,7 @@ const dragReducer = (state, action) => {
 
 const ListDispatchContext = React.createContext(null);
 const ItemDispatchContext = React.createContext(null);
-const DragDispatchContext = React.createContext(null);
+export const DragDispatchContext = React.createContext(null);
 
 // Data architecture:
 //  Three reducers:
