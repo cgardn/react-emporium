@@ -1,6 +1,7 @@
 import React from 'react'
 import Editlabel from './Editlabel';
 
+import {ItemDispatchContext} from './Todoboard';
 
 // A single todo item. Editable (with Editlabel), and draggable, onto any <Todolist /> 
 //
@@ -33,6 +34,7 @@ const Listitem = (props) => {
   const [isPlaceholder, setIsPlaceholder] = React.useState(false);
 
   // Context consumers
+  const itemDispatch = React.useContext(ItemDispatchContext);
 
   const handleDragStart = (event) => {
     const data = JSON.stringify( {
@@ -47,15 +49,22 @@ const Listitem = (props) => {
     });
                 
     event.dataTransfer.setData('listItem', data);
-    console.log(event.dataTransfer.getData("listItem"));
+  };
+
+  const handleDragEnter = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("This item: ", props.id);
   };
 
   const handleDragOver = (event) => {
+    event.preventDefault();
     event.stopPropagation();
   };
 
   const handleDragEnd = (event) => {
     setIsPlaceholder(false);
+    
   };
 
   if (!isPlaceholder) {
@@ -63,6 +72,7 @@ const Listitem = (props) => {
     <div
       className="list-item"
       draggable={isEdit ? "false" : "true"}
+      onDragEnter={handleDragEnter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}

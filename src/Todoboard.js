@@ -226,7 +226,7 @@ const dragReducer = (state, action) => {
 };
 
 const ListDispatchContext = React.createContext(null);
-const ItemDispatchContext = React.createContext(null);
+export const ItemDispatchContext = React.createContext(null);
 
 // Data architecture:
 //  Three reducers:

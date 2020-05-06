@@ -17,6 +17,11 @@ const Editlabel = (props) => {
   //            state
   const canEdit = React.useState(props.canEdit || true);
 
+  const preventDrag = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return (
     <>
     {props.isEdit === true
@@ -25,14 +30,20 @@ const Editlabel = (props) => {
             event.preventDefault()
             props.setIsEdit(false)}
           }
+          onDragStart={event => {
+            return false
+          }}
+          draggable={false}
         >
           <input
+            draggable={false}
             className={props.class}
             value={props.content}
             autoFocus={true}
             onFocus={event => event.target.select()}
             onChange={event => props.onChange(props.id, event.target.value)}
             onBlur={event => props.setIsEdit(false)}
+            onDragStart={preventDrag}
           >
           </input>
         </form>
