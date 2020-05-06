@@ -93,8 +93,12 @@ const Listitem = (props) => {
   );
   } else {
     return (
+      // adding onClick and draggable here is just a hack to fix the disappearing editlabel bug
       <div 
         className="list-item-placeholder"
+        draggable={true}
+        onClick={handleDragEnd}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       ></div>
