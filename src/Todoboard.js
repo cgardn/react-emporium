@@ -120,7 +120,9 @@ const Todolist = (props) => {
           id={props.id}
           content={props.title}
           onChange={changeListTitle}
-          titleEdit={getTitleEdit()}
+          isEdit={isTitleEdit}
+          setTitleEdit={setTitleEdit}
+          titleEdit={[isTitleEdit, setTitleEdit]}
         />
       
       {props.canDelete &&

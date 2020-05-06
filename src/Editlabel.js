@@ -19,11 +19,11 @@ const Editlabel = (props) => {
 
   return (
     <>
-    {props.titleEdit[0] === true
+    {props.isEdit === true
       ? <form 
           onSubmit={event => {
             event.preventDefault()
-            props.titleEdit[1](false)}
+            props.setTitleEdit(false)}
           }
         >
           <input
@@ -32,13 +32,13 @@ const Editlabel = (props) => {
             autoFocus={true}
             onFocus={event => event.target.select()}
             onChange={event => props.onChange(props.id, event.target.value)}
-            onBlur={event => props.titleEdit[1](false)}
+            onBlur={event => props.setTitleEdit(false)}
           >
           </input>
         </form>
       : <span 
           className={props.class}
-          onClick={event => props.titleEdit[1](true)}
+          onClick={event => props.setTitleEdit(true)}
         >{props.content}</span>
     }
     </>
