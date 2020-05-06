@@ -12,14 +12,14 @@ import './Todoboard.css';
 //    - working on drag-to-reorder
 //      -> placeholder shadow works
 //      -> need way to track/update array order
-//      -> need to give listitems ondragover and tie it up
+//      -> need to give listitems ondragenter and tie it up
 //          to the array order through the main reducer
 //
 //  - resize the lower lists, they're huge
 //    - eventually make them resizeable
 //  - make 3-dots on listitems a lot smaller
 //    - eventually make them an img so avoid the weird reflow
-//  - center the lower lists also, but still build from left
+//  - center the lower lists, but still build from left
 //  - make the addItemButtons into inputs that you type into
 //  - give addList button a permanent home somewhere
 //    - up top in header/toolbar when i get there
@@ -30,9 +30,13 @@ import './Todoboard.css';
 //    - can probably move drag-and-drop stuff into its own
 //      wrapper component
 //    - look at main Todoboard component, its huge
+//    - code duplication in Todoboard render()
+//    - code duplication in Todolist render()
 // TODO-bugs
 //  - Editlabel inputs are different size than the labels,
 //    causing minor reflow when swapping modes
+//  - Listitems arent properly re-indexed when moved or
+//      deleted
 // TODO-things to remember to save when doing backend
 //  - list object minus edit states
 //  - current nextId for getId
@@ -40,7 +44,6 @@ import './Todoboard.css';
 const Todolist = (props) => {
   const listDispatch = React.useContext(ListDispatchContext);
   const itemDispatch = React.useContext(ItemDispatchContext);
-  const [draggedItem, dragDispatch] = React.useContext(DragDispatchContext);
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
   const handleDragOver = (event) => {
@@ -48,7 +51,7 @@ const Todolist = (props) => {
     event.stopPropagation();
     itemDispatch({
       type: 'UPDATE_TODO_OWNER',
-      itemId: draggedItem.id,
+      itemId: props.draggedItem.id,
       newOwner: props.id,
       index: props.getSize(props.id),
     });
@@ -101,28 +104,24 @@ const Todolist = (props) => {
     */
   };
 
+  const getTitleEdit = () => {
+    if (props.canEditTitle) {
+      return [isTitleEdit, setTitleEdit]
+    } else {
+      return [false, () => {return;}]
+    }
+  };
+
   return (
     <>
       <div className={`${props.thisClass}-individual-title`}>
-      {props.canEditTitle ?
         <Editlabel
           class={"list-item-objects list-item-label"}
           id={props.id}
           content={props.title}
           onChange={changeListTitle}
-          isEdit={isTitleEdit}
-          setIsEdit={setTitleEdit}
+          titleEdit={getTitleEdit()}
         />
-      : 
-        <Editlabel
-          class={"list-item-objects list-item-label"}
-          id={props.id}
-          content={props.title}
-          onChange={changeListTitle}
-          isEdit={false}
-          setIsEdit={() => {return;}}
-        />
-      }
       
       {props.canDelete &&
         <button
@@ -135,7 +134,7 @@ const Todolist = (props) => {
       <div className={`${props.thisClass}-list`}>
         <div
           className="list-content"
-          onDragOver={event => handleDragOver(event)}
+          onDragEnter={event => handleDragOver(event)}
         >
           {props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
             <Listitem
@@ -144,6 +143,7 @@ const Todolist = (props) => {
               index={item.index}
               content={item.content}
               swapItems={handleSwapItems}
+              dragDispatch={props.dragDispatch}
               onChange={changeItem}
               onDeleteClick={() => removeItem(item.id)}
             />
@@ -225,7 +225,6 @@ const dragReducer = (state, action) => {
 
 const ListDispatchContext = React.createContext(null);
 const ItemDispatchContext = React.createContext(null);
-export const DragDispatchContext = React.createContext(null);
 
 // Data architecture:
 //  Three reducers:
@@ -326,7 +325,6 @@ const Todoboard = (props) => {
     <>
     <ListDispatchContext.Provider value={listDispatch}>
     <ItemDispatchContext.Provider value={itemDispatch}>
-    <DragDispatchContext.Provider value={[draggedItem, dragDispatch]}>
     <div className="calendar">
       <div className="calendar-container" >
         {lists.map( (list, index) => (
@@ -343,6 +341,8 @@ const Todoboard = (props) => {
                 getSize={getListSize}
                 canDelete={false}
                 canEditTitle={false}
+                draggedItem={draggedItem}
+                dragDispatch={dragDispatch}
                 onDeleteClick={() => removeList(list.id)}
               />
               </>
@@ -351,6 +351,7 @@ const Todoboard = (props) => {
       </div>
     </div>
     <hr style={{width: "90vw"}}/>
+    <div className="todo">
     <div className="todo-container">
     {lists.length > 0 &&
       <>
@@ -368,6 +369,8 @@ const Todoboard = (props) => {
           getSize={getListSize}
           getId={getId} 
           canEditTitle={true}
+          draggedItem={draggedItem}
+          dragDispatch={dragDispatch}
           onDeleteClick={() => removeList(list.id)}
         />
         </>
@@ -381,7 +384,7 @@ const Todoboard = (props) => {
       onClick={addList}
     >{"+ Add list"}</button>
     </div>
-    </DragDispatchContext.Provider>
+    </div>
     </ItemDispatchContext.Provider>
     </ListDispatchContext.Provider>
     </>

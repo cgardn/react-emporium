@@ -3,39 +3,42 @@
   --list-bg-color: #ddd;
   --list-content-color: #f9f9f9;
 }
-
+  
 @media screen and (max-width: 736px) {
-
-.calendar-container {
-  overflow-x: auto;
-  flex-direction: row;
-}
-
-.todo-container {
-  overflow-x: auto;
-  flex-direction: row;
-}
-
-.todo-individual {
-  width: 90%;
-}
-
-.calendar-individual {
-  width: 90%;
-}
+  
+  .calendar-container {
+    overflow-x: auto;
+    flex-direction: row;
+    height: 30%;
+  }
+  
+  .todo-container {
+    overflow-x: auto;
+    flex-direction: row;
+  }
+  
+  .todo-individual {
+    width: 90%;
+    height: 60%;
+  }
+  
+  .calendar-individual {
+    width: 90%;
+  }
 }
 
 @media screen and (min-width: 736px) {
-.calendar-individual {
-  width: 14%;
-}
-
-.todo-individual {
-  width: 20%;
-}
-.calendar-container, .todo-container {
-  flex-wrap: wrap;
-}
+  .calendar-individual {
+    width: 14%;
+  }
+  
+  .todo-individual {
+    width: 20%;
+    height: 40%;
+  }
+  .calendar-container, .todo-container {
+    flex-wrap: wrap;
+  }
 }
 
 .calendar {
@@ -43,6 +46,12 @@
   flex-direction: column;
   margin-top: 5px;
   height: 30%;
+}
+
+.todo {
+  display: flex;
+  flex-direction: column;
+  height: 70%;
 }
 
 .calendar-container {
@@ -87,7 +96,6 @@
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
-  height: 90%;
 }
 
 .todo-list {
