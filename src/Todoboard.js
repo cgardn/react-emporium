@@ -121,7 +121,7 @@ const Todolist = (props) => {
           content={props.title}
           onChange={changeListTitle}
           isEdit={isTitleEdit}
-          setTitleEdit={setTitleEdit}
+          setIsEdit={setTitleEdit}
           titleEdit={[isTitleEdit, setTitleEdit]}
         />
       
