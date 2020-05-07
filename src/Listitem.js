@@ -30,13 +30,14 @@ const Itemmenu = (props) => {
 const Listitem = (props) => {
   // State hooks
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
-  const [isEdit, setIsEdit] = React.useState(true);
+  const [isEdit, setIsEdit] = React.useState(false);
   const [isPlaceholder, setIsPlaceholder] = React.useState(false);
 
   // Context consumers
   const itemDispatch = React.useContext(ItemDispatchContext);
 
   const handleDragStart = (event) => {
+    console.log('drag start');
     const data = JSON.stringify( {
       overIndex: props.index,
       itemId: props.id,
@@ -45,7 +46,7 @@ const Listitem = (props) => {
     setIsPlaceholder(true);
     props.dragDispatch({
       type: 'SET_DRAGGED_ITEM',
-      payload: {id: props.id}
+      payload: props.id,
     });
                 
     event.dataTransfer.setData('listItem', data);
@@ -57,14 +58,8 @@ const Listitem = (props) => {
     console.log("This item: ", props.id);
   };
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
   const handleDragEnd = (event) => {
     setIsPlaceholder(false);
-    
   };
 
   if (!isPlaceholder) {
@@ -75,7 +70,6 @@ const Listitem = (props) => {
       onDragEnter={handleDragEnter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
     >
       <Editlabel
         class={"list-item-objects list-item-label"}
@@ -84,6 +78,7 @@ const Listitem = (props) => {
         onChange={props.onChange}
         isEdit={isEdit}
         setIsEdit={setIsEdit}
+        onDragEnd={handleDragEnd}
       />
       <button
         className="deleteItemButton list-item-objects"
@@ -103,14 +98,10 @@ const Listitem = (props) => {
   );
   } else {
     return (
-      // adding onClick and draggable here is just a hack to fix the disappearing editlabel bug
       <div 
         className="list-item-placeholder"
-        draggable={true}
-        onClick={handleDragEnd}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
       ></div>
     );
   }

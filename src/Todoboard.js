@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Editlabel from './Editlabel';
-import Listitem from './Listitem';
+import Todolist from './Todolist';
 
 import './Todoboard.css';
 
@@ -41,125 +40,6 @@ import './Todoboard.css';
 //  - list object minus edit states
 //  - current nextId for getId
 
-const Todolist = (props) => {
-  const listDispatch = React.useContext(ListDispatchContext);
-  const itemDispatch = React.useContext(ItemDispatchContext);
-  const [isTitleEdit, setTitleEdit] = React.useState(false);
-
-  const handleDragOver = (event) => {
-    event.preventDefault();  
-    event.stopPropagation();
-    itemDispatch({
-      type: 'UPDATE_TODO_OWNER',
-      itemId: props.draggedItem.id,
-      newOwner: props.id,
-      index: props.getSize(props.id),
-    });
-  };
-
-  const changeItem = (id, newContent) => {
-    itemDispatch({
-      type: 'UPDATE_TODO_CONTENT',
-      itemId: id,
-      payload: newContent
-    });
-  };
-
-  const removeItem = (id) => {
-    itemDispatch({
-      type: 'REMOVE_TODO',
-      itemId: id,
-    });
-  };
-
-  const handleAdditemClick = () => {
-    itemDispatch({
-      type: 'ADD_TODO',
-      payload: {
-        id: props.getId(),
-        index: props.getSize(props.id),
-        belongsTo: props.id,
-        content: "Click to edit"}
-    });
-  };
-
-  const changeListTitle = (id, content) => {
-    listDispatch({
-      type: 'UPDATE_LIST_TITLE',
-      id: id,
-      payload: content
-    });
-  };
-
-  const handleSwapItems = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData("listitem"));
-    console.log(data);
-    /*
-    dispatch({
-      type: 'SWAP_TODOS',
-      overId: data.overId,
-      underId: data.underId,
-      listId: props.id
-    });
-    */
-  };
-
-  const getTitleEdit = () => {
-    if (props.canEditTitle) {
-      return [isTitleEdit, setTitleEdit]
-    } else {
-      return [false, () => {return;}]
-    }
-  };
-
-  return (
-    <>
-      <div className={`${props.thisClass}-individual-title`}>
-        <Editlabel
-          class={"list-item-objects list-item-label"}
-          id={props.id}
-          content={props.title}
-          onChange={changeListTitle}
-          isEdit={isTitleEdit}
-          setIsEdit={setTitleEdit}
-          titleEdit={[isTitleEdit, setTitleEdit]}
-        />
-      
-      {props.canDelete &&
-        <button
-          className="list-delete-button"
-          onClick={props.onDeleteClick}
-        >X</button>
-      }
-      </div>
-
-      <div className={`${props.thisClass}-list`}>
-        <div
-          className="list-content"
-          onDragEnter={event => handleDragOver(event)}
-        >
-          {props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
-            <Listitem
-              key={item.id}
-              id={item.id}
-              index={item.index}
-              content={item.content}
-              swapItems={handleSwapItems}
-              dragDispatch={props.dragDispatch}
-              onChange={changeItem}
-              onDeleteClick={() => removeItem(item.id)}
-            />
-          ))}
-        </div>
-        <button
-          className={"addItemButton"}
-          style={{ fontsize: '2rem' }}
-          onClick={handleAdditemClick}
-        >{"+"}</button>
-      </div>
-    </>
-  );
-};
 
 const listReducer = (state, action) => {
   switch(action.type) {
@@ -198,9 +78,32 @@ const itemReducer = (state, action) => {
           return item
         }
       });
-    case 'SWAP_TODO_ORDER':
+    case 'UPDATE_TODO_INDEX':
+      return state.map( item => {
+        if (item.id === action.payload.id) {
+          return {...item, index: action.payload.index}
+        } else {
+          return item
+        }
+      });
+    case 'SWAP_TODO_INDEX':
       // receives two item ids, swaps their index values
-      return state;
+      // payload: {
+      //    hoverIndex: integer index of hovered item
+      //    draggedIndex: integer index of dragged item
+      //    hoverId: integer ID of hovered item
+      //    draggedId: integer ID of dragged item
+      //    }
+      const draggedIndex = action.payload.draggedIndex;
+      return state.map( item => {
+        if (item.id === action.payload.draggedId) {
+          return {...item, index: action.payload.hoverIndex}
+        } else if (item.id === action.payload.hoverId) {
+          return {...item, index: draggedIndex}
+        } else {
+          return item;
+        }
+      });
     case 'UPDATE_TODO_OWNER':
       return state.map( item => {
         if (item.id === action.itemId) {
@@ -217,15 +120,19 @@ const itemReducer = (state, action) => {
 const dragReducer = (state, action) => {
   switch(action.type) {
     case 'SET_DRAGGED_ITEM':
-      return action.payload;
+      return {...state, item: action.payload};
     case 'CLEAR_DRAGGED_ITEM':
-      return {};
+      return {...state, item: null};
+    case 'UPDATE_HOVERED_LIST':
+      return {...state, list: action.payload};
+    case 'CLEAR_HOVERED_LIST':
+      return {...state, list: null}
     default:
       return state;
     }
 };
 
-const ListDispatchContext = React.createContext(null);
+export const ListDispatchContext = React.createContext(null);
 export const ItemDispatchContext = React.createContext(null);
 
 // Data architecture:
@@ -238,8 +145,10 @@ export const ItemDispatchContext = React.createContext(null);
 //      - belongsTo: Integer, id of the list that owns this 
 //      - content: String, the actual todo-text input by user
 //      - index: order placement on the list
-//  - dragReducer: holds copy of current dragged item
-//      - item: Object, dragged item
+//  - dragReducer: Object with info about current drag op
+//      - item: Integer, id of currently dragged item
+//      - list: Integer, id of currently hovered list
+//       
 //  
 //  * Dragged item information is tracked outside of the 
 //    built-in event.dataTransfer object, because the HTML5
@@ -312,6 +221,7 @@ const Todoboard = (props) => {
           itemId: item.id
         });
       }
+      return item;
     });
     
     listDispatch({type: 'REMOVE_LIST', listId: listId});
@@ -323,6 +233,35 @@ const Todoboard = (props) => {
     return ownedItems.length;
   };
 
+  const handleDragEnd = (event) => {
+    console.log("dragend, bubbled to board");
+    console.log("Item: ", draggedItem.item);
+    console.log("List: ", draggedItem.list);
+    dragDispatch({
+      type: 'CLEAR_DRAGGED_ITEM',
+    });
+    dragDispatch({
+      type: 'CLEAR_HOVERED_LIST',
+    });
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    console.log("dropped, bubbled to board");
+    console.log("Item: ", draggedItem.item);
+    console.log("List: ", draggedItem.list);
+    dragDispatch({
+      type: 'CLEAR_DRAGGED_ITEM',
+    });
+    dragDispatch({
+      type: 'CLEAR_HOVERED_LIST',
+    });
+  };
+
+  const handleDragStart = (event) => {
+    console.log("start in board");
+  };
+
   return (
     <>
     <ListDispatchContext.Provider value={listDispatch}>
@@ -331,16 +270,22 @@ const Todoboard = (props) => {
       <div className="calendar-container" >
         {lists.map( (list, index) => (
           (index <= 6) &&
-            <div className="calendar-individual" key={list.id}>
+            <div 
+              className="calendar-individual"
+              key={list.id}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDrop={handleDrop}
+            >
               <>
               <Todolist
                 thisClass={"calendar"}
                 title={list.title}
                 key={list.id}
                 id={list.id}
-                getId={getId}
                 items={items}
                 getSize={getListSize}
+                getId={getId}
                 canDelete={false}
                 canEditTitle={false}
                 draggedItem={draggedItem}
@@ -359,17 +304,23 @@ const Todoboard = (props) => {
       <>
       {lists.map( (list, index) => (
         (index > 6) && 
-        <div className="todo-individual" key={list.id}>
+        <div 
+          className="todo-individual" 
+          key={list.id}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDrop={handleDrop}
+        >
         <>
         <Todolist
           thisClass={"todo"}
-          canDelete={true}
           title={list.title}
           key={list.id}
           id={list.id}
           items={items}
           getSize={getListSize}
           getId={getId} 
+          canDelete={true}
           canEditTitle={true}
           draggedItem={draggedItem}
           dragDispatch={dragDispatch}
