@@ -73,6 +73,14 @@ const itemReducer = (state, action) => {
           return item
         }
       });
+    case 'SET_IS_PLACEHOLDER':
+      return state.map( item => {
+        if (item.id === action.payload.itemId) {
+          return {...item, isPlaceholder: action.payload.isPlaceholder}
+        } else {
+          return item
+        }
+      });
     default:
       return state;
   }
@@ -196,8 +204,6 @@ const Todoboard = (props) => {
 
   const handleDragEnd = (event) => {
     console.log("dragend, bubbled to board");
-    console.log("Item: ", draggedItem.item);
-    console.log("List: ", draggedItem.list);
     dragDispatch({
       type: 'CLEAR_DRAGGED_ITEM',
     });
@@ -208,9 +214,12 @@ const Todoboard = (props) => {
 
   const handleDrop = (event) => {
     event.preventDefault();
-    console.log("dropped, bubbled to board");
-    console.log("Item: ", draggedItem.item);
-    console.log("List: ", draggedItem.list);
+    itemDispatch({
+      type: 'SET_IS_PLACEHOLDER',
+      payload: {
+        itemId: draggedItem.item, 
+        isPlaceholder: false},
+    });
     dragDispatch({
       type: 'CLEAR_DRAGGED_ITEM',
     });

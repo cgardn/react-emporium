@@ -1,6 +1,7 @@
 import React from 'react';
 import Editlabel from './Editlabel';
 import Listitem from './Listitem';
+import Placeholder from './Placeholder';
 import {ListDispatchContext, ItemDispatchContext} from './Todoboard.js';
 
 const Todolist = (props) => {
@@ -49,7 +50,8 @@ const Todolist = (props) => {
         id: props.getId(),
         index: props.getSize(props.id),
         belongsTo: props.id,
-        content: "Click to edit"}
+        content: "Click to edit",
+        isPlaceholder: false}
     });
   };
 
@@ -82,6 +84,22 @@ const Todolist = (props) => {
     }
   };
 
+  const renderedItems = (
+    props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
+          <Listitem
+            key={item.id}
+            id={item.id}
+            index={item.index}
+            content={item.content}
+            isPlaceholder={item.isPlaceholder}
+            swapItems={handleSwapItems}
+            dragDispatch={props.dragDispatch}
+            onChange={changeItem}
+            onDeleteClick={() => removeItem(item.id)}
+          />
+    ))
+  );
+
   return (
     <>
       <div className={`${props.thisClass}-individual-title`}>
@@ -111,18 +129,7 @@ const Todolist = (props) => {
           onDragEnter={event => handleDragEnter(event)}
           onDragOver={handleDragOver}
         >
-          {props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
-            <Listitem
-              key={item.id}
-              id={item.id}
-              index={item.index}
-              content={item.content}
-              swapItems={handleSwapItems}
-              dragDispatch={props.dragDispatch}
-              onChange={changeItem}
-              onDeleteClick={() => removeItem(item.id)}
-            />
-          ))}
+        {renderedItems}
         </div>
         <button
           className={"addItemButton"}

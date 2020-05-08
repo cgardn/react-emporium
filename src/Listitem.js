@@ -43,6 +43,12 @@ const Listitem = (props) => {
       itemId: props.id,
       content: props.content
     });
+    itemDispatch({
+      type: 'SET_IS_PLACEHOLDER',
+      payload: {
+        itemId: props.id,
+        isPlaceholder: true}
+    });
     setIsPlaceholder(true);
     props.dragDispatch({
       type: 'SET_DRAGGED_ITEM',
@@ -62,8 +68,8 @@ const Listitem = (props) => {
     setIsPlaceholder(false);
   };
 
-  if (!isPlaceholder) {
   return (
+    <>
     <div
       className="list-item"
       draggable={isEdit ? "false" : "true"}
@@ -71,6 +77,8 @@ const Listitem = (props) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      {!props.isPlaceholder &&
+    <>
       <Editlabel
         class={"list-item-objects list-item-label"}
         id={props.id}
@@ -94,17 +102,26 @@ const Listitem = (props) => {
           onBlur={event => setContextMenu([0,0,!contextMenu])}
         />
       }
+    </>
+      }
+      {props.isPlaceholder &&
+        <div 
+          className="list-item-placeholder"
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        ></div>
+      }
     </div>
+    </>
   );
-  } else {
-    return (
-      <div 
-        className="list-item-placeholder"
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      ></div>
-    );
-  }
 };
+    /*
+    <div 
+      className="list-item-placeholder"
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      hidden={!isPlaceholder}
+    ></div>
+    */
 
 export default Listitem;

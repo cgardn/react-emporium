@@ -170,19 +170,12 @@
 
 .list-item-placeholder {
   height: 36px;
-  display: flex;
   align-items: center;
-  justify-content: space-between;
 
   margin-bottom: 8px;
   padding: 0px 10px;
 
-  border-bottom: thin solid #bbb;
   border-radius: 3px;
-
-  background-color: var(--list-bg-color);
-  font-family: "Verdana", "Arial", sans-serif;
-  font-size: 0.8rem;
 }
 
 .list-item:hover {
