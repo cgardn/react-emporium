@@ -16,6 +16,19 @@ const listReducer = (state, action) => {
           return list
         }
       });
+    case 'INSERT_TODO':
+      // payload: 
+      //  - listId: id of list item goes into
+      //  - itemId: id of item being inserted
+      //  - insertIndex: index to insert item at, or -1 to append
+      return state.map( list => {
+        if (list.id === action.payload.listId) {
+          let insertIndex = (action.payload.itemIndex === -1 ? list.items.length : action.payload.itemIndex)
+          return {...list, items: list.items.slice(0,insertIndex).concat(action.payload.itemId).concat(list.items.slice(insertIndex, list.items.length))}
+        } else {
+          return list
+        }
+      });
     default:
       return state;
   }
@@ -24,7 +37,7 @@ const listReducer = (state, action) => {
 const itemReducer = (state, action) => {
   switch(action.type) {
     case 'ADD_TODO':
-      return [...state, action.payload];
+      return {...state, [action.payload.id]: action.payload};
     case 'REMOVE_TODO':
       // filters out item with specified ID, then remaps 
       //   remaining items' index properties to fill gaps
@@ -32,6 +45,9 @@ const itemReducer = (state, action) => {
         return {...item, index: index}
       });
     case 'UPDATE_TODO_CONTENT':
+      let obj = state[action.payload.id];
+      return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
+      /*
       return state.map( item => {
         if (item.id === action.itemId) {
           return {...item, content: action.payload}
@@ -39,10 +55,19 @@ const itemReducer = (state, action) => {
           return item
         }
       });
+      */
     case 'UPDATE_TODO_INDEX':
       return state.map( item => {
         if (item.id === action.payload.id) {
           return {...item, index: action.payload.index}
+        } else {
+          return item
+        }
+      });
+    case 'INSERT_INTO_LIST':
+      return state.map( item => {
+        if (item.index >= action.payload.index) {
+          return {...item, index: item.index+1}
         } else {
           return item
         }
@@ -89,7 +114,8 @@ const itemReducer = (state, action) => {
 const dragReducer = (state, action) => {
   switch(action.type) {
     case 'SET_DRAGGED_ITEM':
-      return {...state, item: action.payload};
+      return {...state, item: action.payload.item,
+        index: action.payload.index};
     case 'CLEAR_DRAGGED_ITEM':
       return {...state, item: null};
     case 'UPDATE_HOVERED_LIST':
@@ -143,21 +169,21 @@ export const ItemDispatchContext = React.createContext(null);
 //    of the item reducer along the way.
 
 const initialListState = [
-  {id: 'm', title: "Monday"},
-  {id: 't', title: "Tuesday"},
-  {id: 'w', title: "Wednesday"},
-  {id: 'r', title: "Thursday"},
-  {id: 'f', title: "Friday"},
-  {id: 's', title: "Saturday"},
-  {id: 'u', title: "Sunday"},
+  {id: 'm', title: "Monday", items: []},
+  {id: 't', title: "Tuesday", items: []},
+  {id: 'w', title: "Wednesday", items: []},
+  {id: 'r', title: "Thursday", items: []},
+  {id: 'f', title: "Friday", items: []},
+  {id: 's', title: "Saturday", items: []},
+  {id: 'u', title: "Sunday", items: []},
 ];
 
-const initialItemState = [];
+const initialItemState = {};
 const initialDragState = {};
 
 const Todoboard = (props) => {
   const [lists, listDispatch] = React.useReducer(listReducer, initialListState);
-  const [items, itemDispatch] = React.useReducer(itemReducer, initialItemState);
+  const [allItems, itemDispatch] = React.useReducer(itemReducer, initialItemState);
   const [draggedItem, dragDispatch] = React.useReducer(dragReducer, initialDragState);
 
   const [nextItemId, setNextItemId] = React.useState(props.startId || 0);
@@ -172,6 +198,7 @@ const Todoboard = (props) => {
     const outList = {
       title: "New List",
       id: getId(),
+      items: [],
     };
     return outList;
   };
@@ -183,7 +210,7 @@ const Todoboard = (props) => {
 
   const removeList = (listId) => {
     // remove a lists items first to prevent orphaned data
-    items.map( item =>  {
+    allItems.map( item =>  {
       if (item.belongsTo === listId) {
         itemDispatch({
           type: 'REMOVE_TODO',
@@ -198,8 +225,8 @@ const Todoboard = (props) => {
   };
 
   const getListSize = (listId) => {
-    const ownedItems = items.filter( item => item.belongsTo === listId)
-    return ownedItems.length;
+    //const ownedItems = allItems.filter( item => item.belongsTo === listId)
+    return lists[listId].items.length;
   };
 
   const handleDragEnd = (event) => {
@@ -253,11 +280,13 @@ const Todoboard = (props) => {
                 title={list.title}
                 key={list.id}
                 id={list.id}
-                items={items}
+                ownedItems={list.items}
+                allItems={allItems}
                 getSize={getListSize}
                 getId={getId}
                 canDelete={false}
                 canEditTitle={false}
+                isHovered={draggedItem.list === list.id}
                 draggedItem={draggedItem}
                 dragDispatch={dragDispatch}
                 onDeleteClick={() => removeList(list.id)}
@@ -287,7 +316,7 @@ const Todoboard = (props) => {
           title={list.title}
           key={list.id}
           id={list.id}
-          items={items}
+          allItems={allItems}
           getSize={getListSize}
           getId={getId} 
           canDelete={true}

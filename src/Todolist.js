@@ -1,7 +1,6 @@
 import React from 'react';
 import Editlabel from './Editlabel';
 import Listitem from './Listitem';
-import Placeholder from './Placeholder';
 import {ListDispatchContext, ItemDispatchContext} from './Todoboard.js';
 
 const Todolist = (props) => {
@@ -22,6 +21,10 @@ const Todolist = (props) => {
       newOwner: props.id,
       index: props.getSize(props.id),
     });
+    itemDispatch({
+      type: 'INSERT_INTO_LIST',
+      payload: {index: props.draggedItem.index}
+    });
   };
 
   const handleDragOver = (event) => {
@@ -31,8 +34,7 @@ const Todolist = (props) => {
   const changeItem = (id, newContent) => {
     itemDispatch({
       type: 'UPDATE_TODO_CONTENT',
-      itemId: id,
-      payload: newContent
+      payload: {id: id, content: newContent}
     });
   };
 
@@ -44,11 +46,18 @@ const Todolist = (props) => {
   };
 
   const handleAdditemClick = () => {
+    listDispatch({
+      type: 'INSERT_TODO',
+      payload: {
+        listId: props.id,
+        itemId: props.getId(),
+        itemIndex: -1,
+      }
+    });
     itemDispatch({
       type: 'ADD_TODO',
       payload: {
         id: props.getId(),
-        index: props.getSize(props.id),
         belongsTo: props.id,
         content: "Click to edit",
         isPlaceholder: false}
@@ -64,44 +73,36 @@ const Todolist = (props) => {
   };
 
   const handleSwapItems = (event) => {
-    const data = JSON.parse(event.dataTransfer.getData("listitem"));
-    console.log(data);
-    /*
-    dispatch({
-      type: 'SWAP_TODOS',
-      overId: data.overId,
-      underId: data.underId,
-      listId: props.id
-    });
-    */
+    console.log("swap items");
   };
 
-  const getTitleEdit = () => {
-    if (props.canEditTitle) {
-      return [isTitleEdit, setTitleEdit]
-    } else {
-      return [false, () => {return;}]
-    }
+  const getOwnedItems = () => {
+    return props.ownedItems;
+    //return props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1)
   };
 
   const renderedItems = (
-    props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1).map( item => (
+    getOwnedItems().map( item => (
           <Listitem
-            key={item.id}
-            id={item.id}
-            index={item.index}
-            content={item.content}
-            isPlaceholder={item.isPlaceholder}
+            key={props.allItems[item].id}
+            id={props.allItems[item].id}
+            index={props.allItems[item].index}
+            content={props.allItems[item].content}
+            isPlaceholder={props.allItems[item].isPlaceholder}
             swapItems={handleSwapItems}
             dragDispatch={props.dragDispatch}
             onChange={changeItem}
-            onDeleteClick={() => removeItem(item.id)}
+            onDeleteClick={() => removeItem(item)}
           />
     ))
   );
 
   return (
-    <>
+    <div 
+      style={{height: "100%"}}
+      onDragEnter={event => handleDragEnter(event)}
+      onDragOver={handleDragOver}
+    >
       <div className={`${props.thisClass}-individual-title`}>
         <Editlabel
           class={"list-item-objects list-item-label"}
@@ -126,8 +127,6 @@ const Todolist = (props) => {
       >
         <div
           className="list-content"
-          onDragEnter={event => handleDragEnter(event)}
-          onDragOver={handleDragOver}
         >
         {renderedItems}
         </div>
@@ -137,7 +136,7 @@ const Todolist = (props) => {
           onClick={handleAdditemClick}
         >{"+"}</button>
       </div>
-    </>
+    </div>
   );
 };
 

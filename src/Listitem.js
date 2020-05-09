@@ -31,41 +31,26 @@ const Listitem = (props) => {
   // State hooks
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
   const [isEdit, setIsEdit] = React.useState(false);
-  const [isPlaceholder, setIsPlaceholder] = React.useState(false);
 
   // Context consumers
   const itemDispatch = React.useContext(ItemDispatchContext);
 
   const handleDragStart = (event) => {
-    console.log('drag start');
-    const data = JSON.stringify( {
-      overIndex: props.index,
-      itemId: props.id,
-      content: props.content
-    });
     itemDispatch({
       type: 'SET_IS_PLACEHOLDER',
       payload: {
         itemId: props.id,
         isPlaceholder: true}
     });
-    setIsPlaceholder(true);
     props.dragDispatch({
       type: 'SET_DRAGGED_ITEM',
-      payload: props.id,
+      payload: {item: props.id, index: props.index},
     });
-                
-    event.dataTransfer.setData('listItem', data);
   };
 
   const handleDragEnter = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log("This item: ", props.id);
-  };
-
-  const handleDragEnd = (event) => {
-    setIsPlaceholder(false);
   };
 
   return (
@@ -75,7 +60,6 @@ const Listitem = (props) => {
       draggable={isEdit ? "false" : "true"}
       onDragEnter={handleDragEnter}
       onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
     >
       {!props.isPlaceholder &&
     <>
@@ -86,7 +70,6 @@ const Listitem = (props) => {
         onChange={props.onChange}
         isEdit={isEdit}
         setIsEdit={setIsEdit}
-        onDragEnd={handleDragEnd}
       />
       <button
         className="deleteItemButton list-item-objects"
@@ -108,7 +91,6 @@ const Listitem = (props) => {
         <div 
           className="list-item-placeholder"
           onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
         ></div>
       }
     </div>

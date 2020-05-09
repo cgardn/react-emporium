@@ -10,12 +10,8 @@ const Editlabel = (props) => {
   //  isEdit: bool, true if in editable input state, false if
   //          plain text span
   //  setIsEdit: function ref for setting isEdit on parent
-  //  canEdit: bool for turning off click-to-edit,
-  //            mainly used for non-editable titles on the 
-  //            weekday lists
   //  onChange: function ref for controlling input on parent
   //            state
-  const canEdit = React.useState(props.canEdit || true);
 
   const preventDrag = (event) => {
     event.preventDefault();
