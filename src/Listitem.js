@@ -53,12 +53,19 @@ const Listitem = (props) => {
     event.stopPropagation();
   };
 
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+
   return (
     <>
     <div
       className="list-item"
       draggable={isEdit ? "false" : "true"}
       onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
       onDragStart={handleDragStart}
     >
       {!props.isPlaceholder &&

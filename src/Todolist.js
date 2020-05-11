@@ -15,15 +15,25 @@ const Todolist = (props) => {
       type: 'UPDATE_HOVERED_LIST',
       payload: props.id,
     });
-    itemDispatch({
-      type: 'UPDATE_TODO_OWNER',
-      itemId: props.draggedItem.item,
-      newOwner: props.id,
-      index: props.getSize(props.id),
+    listDispatch({
+      type: 'INSERT_TODO',
+      payload: {
+        listId: props.id,
+        itemId: props.draggedItem.item,
+        insertIndex: -1
+      }
     });
-    itemDispatch({
-      type: 'INSERT_INTO_LIST',
-      payload: {index: props.draggedItem.index}
+  };
+
+  const handleDragLeave = (event) => {
+    console.log("remove todo");
+    event.preventDefault();
+    listDispatch({
+      type: 'REMOVE_TODO',
+      payload: {
+        listid: props.id,
+        itemId: props.draggedItem.item,
+      }
     });
   };
 
@@ -101,6 +111,7 @@ const Todolist = (props) => {
     <div 
       style={{height: "100%"}}
       onDragEnter={event => handleDragEnter(event)}
+      onDragLeave={event => handleDragLeave(event)}
       onDragOver={handleDragOver}
     >
       <div className={`${props.thisClass}-individual-title`}>

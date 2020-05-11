@@ -23,18 +23,41 @@ const listReducer = (state, action) => {
       //  - insertIndex: index to insert item at, or -1 to append
       return state.map( list => {
         if (list.id === action.payload.listId) {
+          // return if item already in list, prevents adding
+          // multiple times when moving around inside list
+          if (list.items.includes(action.payload.itemId)) {
+            return list;
+          }
           let insertIndex = (action.payload.itemIndex === -1 ? list.items.length : action.payload.itemIndex)
           return {...list, items: list.items.slice(0,insertIndex).concat(action.payload.itemId).concat(list.items.slice(insertIndex, list.items.length))}
         } else {
           return list
         }
       });
+    case 'REMOVE_TODO':
+      // payload:
+      //  - listId: id of list losing the todo
+      //  - itemId: id of the item being removed
+      //  : should check and make sure there's only one of
+      //     the specified id?
+      console.log("removeing todo", action.payload);
+      return state.map( list => {
+        if (list.id === action.payload.listId) {
+          let index = list.items.findIndex( el => el === action.payload.itemId);
+          let listItems = list.items;
+          return {...list, items: listItems.slice(0,index).concat(listItems.slice(index+1,listItems.length))}
+        } else {
+          return list;
+        }
+      });
+
     default:
       return state;
   }
 };
 
 const itemReducer = (state, action) => {
+  let obj = null;
   switch(action.type) {
     case 'ADD_TODO':
       return {...state, [action.payload.id]: action.payload};
@@ -45,17 +68,8 @@ const itemReducer = (state, action) => {
         return {...item, index: index}
       });
     case 'UPDATE_TODO_CONTENT':
-      let obj = state[action.payload.id];
+      obj = state[action.payload.id];
       return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
-      /*
-      return state.map( item => {
-        if (item.id === action.itemId) {
-          return {...item, content: action.payload}
-        } else {
-          return item
-        }
-      });
-      */
     case 'UPDATE_TODO_INDEX':
       return state.map( item => {
         if (item.id === action.payload.id) {
@@ -99,13 +113,8 @@ const itemReducer = (state, action) => {
         }
       });
     case 'SET_IS_PLACEHOLDER':
-      return state.map( item => {
-        if (item.id === action.payload.itemId) {
-          return {...item, isPlaceholder: action.payload.isPlaceholder}
-        } else {
-          return item
-        }
-      });
+      obj = state[action.payload.itemId];
+      return {...state, [action.payload.itemId]: {...obj, isPlaceholder: action.payload.isPlaceholder}};
     default:
       return state;
   }
