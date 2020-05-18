@@ -11,10 +11,6 @@ const Todolist = (props) => {
   const handleDragEnter = (event) => {
     event.preventDefault();  
     event.stopPropagation();
-    props.dragDispatch({
-      type: 'UPDATE_HOVERED_LIST',
-      payload: props.id,
-    });
     listDispatch({
       type: 'INSERT_TODO',
       payload: {
@@ -23,17 +19,18 @@ const Todolist = (props) => {
         insertIndex: -1
       }
     });
-  };
-
-  const handleDragLeave = (event) => {
-    console.log("remove todo");
-    event.preventDefault();
-    listDispatch({
-      type: 'REMOVE_TODO',
-      payload: {
-        listid: props.id,
-        itemId: props.draggedItem.item,
-      }
+    if (props.draggedItem.list !== props.id) {
+      listDispatch({
+        type: 'REMOVE_TODO',
+        payload: {
+          listId: props.draggedItem.list,
+          itemId: props.draggedItem.item,
+        },
+      });
+    }
+    props.dragDispatch({
+      type: 'UPDATE_HOVERED_LIST',
+      payload: props.id,
     });
   };
 
@@ -51,7 +48,17 @@ const Todolist = (props) => {
   const removeItem = (id) => {
     itemDispatch({
       type: 'REMOVE_TODO',
-      itemId: id,
+      payload: {
+        listId: props.id,
+        itemId: id,
+      },
+    });
+    listDispatch({
+      type: 'REMOVE_TODO',
+      payload: {
+        listId: props.id,
+        itemId: id,
+      },
     });
   };
 
@@ -68,7 +75,6 @@ const Todolist = (props) => {
       type: 'ADD_TODO',
       payload: {
         id: props.getId(),
-        belongsTo: props.id,
         content: "Click to edit",
         isPlaceholder: false}
     });
@@ -88,7 +94,6 @@ const Todolist = (props) => {
 
   const getOwnedItems = () => {
     return props.ownedItems;
-    //return props.items.filter( item => item.belongsTo === props.id).sort( (a,b) => (a.index > b.index) ? 1 : -1)
   };
 
   const renderedItems = (
@@ -111,7 +116,6 @@ const Todolist = (props) => {
     <div 
       style={{height: "100%"}}
       onDragEnter={event => handleDragEnter(event)}
-      onDragLeave={event => handleDragLeave(event)}
       onDragOver={handleDragOver}
     >
       <div className={`${props.thisClass}-individual-title`}>

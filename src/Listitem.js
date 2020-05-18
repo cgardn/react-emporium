@@ -48,24 +48,11 @@ const Listitem = (props) => {
     });
   };
 
-  const handleDragEnter = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  const handleDragLeave = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-
   return (
     <>
     <div
       className="list-item"
       draggable={isEdit ? "false" : "true"}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
       onDragStart={handleDragStart}
     >
       {!props.isPlaceholder &&
@@ -104,13 +91,5 @@ const Listitem = (props) => {
     </>
   );
 };
-    /*
-    <div 
-      className="list-item-placeholder"
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      hidden={!isPlaceholder}
-    ></div>
-    */
 
 export default Listitem;

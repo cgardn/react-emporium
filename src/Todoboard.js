@@ -40,14 +40,16 @@ const listReducer = (state, action) => {
       //  - itemId: id of the item being removed
       //  : should check and make sure there's only one of
       //     the specified id?
-      console.log("removeing todo", action.payload);
+      console.log("removing todo", action.payload);
+      console.log("State:", state);
       return state.map( list => {
         if (list.id === action.payload.listId) {
-          let index = list.items.findIndex( el => el === action.payload.itemId);
-          let listItems = list.items;
-          return {...list, items: listItems.slice(0,index).concat(listItems.slice(index+1,listItems.length))}
+          let obj = list.items;
+          console.log("obj:", obj);
+          return {...list, items: obj.filter(
+            item => item !== action.payload.itemId),}
         } else {
-          return list;
+          return list
         }
       });
 
@@ -62,11 +64,8 @@ const itemReducer = (state, action) => {
     case 'ADD_TODO':
       return {...state, [action.payload.id]: action.payload};
     case 'REMOVE_TODO':
-      // filters out item with specified ID, then remaps 
-      //   remaining items' index properties to fill gaps
-      return state.filter(item => item.id !== action.itemId).map( (item, index) => {
-        return {...item, index: index}
-      });
+      delete state[action.payload.itemId];
+      return state;
     case 'UPDATE_TODO_CONTENT':
       obj = state[action.payload.id];
       return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
@@ -104,14 +103,6 @@ const itemReducer = (state, action) => {
           return item;
         }
       });
-    case 'UPDATE_TODO_OWNER':
-      return state.map( item => {
-        if (item.id === action.itemId) {
-          return {...item, belongsTo: action.newOwner}
-        } else {
-          return item
-        }
-      });
     case 'SET_IS_PLACEHOLDER':
       obj = state[action.payload.itemId];
       return {...state, [action.payload.itemId]: {...obj, isPlaceholder: action.payload.isPlaceholder}};
@@ -146,10 +137,9 @@ export const ItemDispatchContext = React.createContext(null);
 //      - title: String, title of the list
 //  - itemReducer: An array of item objects:
 //      - id: Integer, unique within the application
-//      - belongsTo: Integer, id of the list that owns this 
 //      - content: String, the actual todo-text input by user
 //      - index: order placement on the list
-//  - dragReducer: Object with info about current drag op
+//  - dragReducer: Object with info about current drag operation
 //      - item: Integer, id of currently dragged item
 //      - list: Integer, id of currently hovered list
 //       
@@ -166,12 +156,13 @@ export const ItemDispatchContext = React.createContext(null);
 // 
 //  There are a handful of properties that don't get stored
 //    in the reducer, for example whether a list can be 
-//    deleted - this is hardcoded off for the weekdays, and
+//    deleted - this is hardcoded to off for the weekdays, and
 //    on for everything else. May change in the future.
 //
 //  Lists also receive their current number of items as a prop
 //    for passing through itemDispatch to set correct item 
-//    order (new items are assigned index=listSize)
+//    order (new items are assigned index=listSize) 
+//      -> no longer true since switch to arrays of items on lists
 //
 //  The board is constructed by referencing both reducers to
 //    get the lists and their items, pulling item content out
@@ -219,22 +210,23 @@ const Todoboard = (props) => {
 
   const removeList = (listId) => {
     // remove a lists items first to prevent orphaned data
-    allItems.map( item =>  {
-      if (item.belongsTo === listId) {
-        itemDispatch({
-          type: 'REMOVE_TODO',
-          itemId: item.id
+    // - remember items on lists are just id's!
+    lists.map( list => {
+      if (list.id === listId) {
+        list.items.forEach( item => {
+          itemDispatch({
+            type: 'REMOVE_TODO',
+            payload: {
+              itemId: item,
+            },
+          });
         });
       }
-      return item;
     });
-    
     listDispatch({type: 'REMOVE_LIST', listId: listId});
-    
   };
 
   const getListSize = (listId) => {
-    //const ownedItems = allItems.filter( item => item.belongsTo === listId)
     return lists[listId].items.length;
   };
 
@@ -264,9 +256,6 @@ const Todoboard = (props) => {
     });
   };
 
-  const handleDragStart = (event) => {
-    console.log("start in board");
-  };
 
   return (
     <>
@@ -279,7 +268,6 @@ const Todoboard = (props) => {
             <div 
               className="calendar-individual"
               key={list.id}
-              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               onDrop={handleDrop}
             >
@@ -315,7 +303,6 @@ const Todoboard = (props) => {
         <div 
           className="todo-individual" 
           key={list.id}
-          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           onDrop={handleDrop}
         >
@@ -325,6 +312,7 @@ const Todoboard = (props) => {
           title={list.title}
           key={list.id}
           id={list.id}
+          ownedItems={list.items}
           allItems={allItems}
           getSize={getListSize}
           getId={getId} 
