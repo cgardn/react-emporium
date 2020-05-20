@@ -39,6 +39,7 @@
   }
   .calendar-container, .todo-container {
     flex-wrap: wrap;
+    height: 30%;
   }
 }
 
@@ -62,6 +63,7 @@
   width: 90vw;
   margin-top: 5px;
   align-self: center;
+  height: 100%;
 }
 
 .calendar-individual {
@@ -72,6 +74,8 @@
   border: thin solid #bbb;
   border-radius: 7px;
   background-color: var(--list-bg-color);
+  height: 100%;
+  overflow-y: auto;
 }
 
 
@@ -116,6 +120,7 @@
   flex-direction: column;
   flex-basis: auto;
   height: 90%;
+  overflow-y: auto;
 }
 
 .todo-individual-title {
