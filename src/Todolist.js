@@ -9,34 +9,6 @@ const Todolist = (props) => {
   const itemDispatch = React.useContext(ItemDispatchContext);
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
-  const handleDragEnter = (event) => {
-    listDispatch({
-      type: 'INSERT_TODO',
-      payload: {
-        listId: props.id,
-        itemId: props.draggedItem.item,
-        insertIndex: -1
-      }
-    });
-    if (props.draggedItem.list !== props.id) {
-      listDispatch({
-        type: 'REMOVE_TODO',
-        payload: {
-          listId: props.draggedItem.list,
-          itemId: props.draggedItem.item,
-        },
-      });
-    }
-    props.dragDispatch({
-      type: 'UPDATE_HOVERED_LIST',
-      payload: props.id,
-    });
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
   const changeItem = (id, newContent) => {
     itemDispatch({
       type: 'UPDATE_TODO_CONTENT',
@@ -87,35 +59,19 @@ const Todolist = (props) => {
     });
   };
 
-  const handleSwapItems = (event) => {
-    console.log("swap items");
-  };
-
   const renderedItems = (
     props.ownedItems.map( (item, index) => (
-          <Listitem
-            key={props.allItems[item].id}
-            id={props.allItems[item].id}
-            index={index}
-            content={props.allItems[item].content}
-            isPlaceholder={props.allItems[item].isPlaceholder}
-            swapItems={handleSwapItems}
-            dragDispatch={props.dragDispatch}
-            onChange={changeItem}
-            onDeleteClick={() => removeItem(item)}
-          />
+      <Listitem
+        key={props.allItems[item].id}
+        id={props.allItems[item].id}
+        index={index}
+        content={props.allItems[item].content}
+        isPlaceholder={props.allItems[item].isPlaceholder}
+        onChange={changeItem}
+        onDeleteClick={() => removeItem(item)}
+      />
     ))
   );
-
-  const handleMouseDown = (event) => {
-    console.log("X, Y", event.pageX, event.pageY);
-    console.log(event.currentTarget);
-    console.log(event);
-  };
-
-  const handleTouchStart = (event) => {
-    console.log(event);
-  };
 
   const Container = (props) => {
     return (

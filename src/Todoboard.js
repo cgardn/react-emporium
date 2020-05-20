@@ -49,35 +49,6 @@ const listReducer = (state, action) => {
           return list
         }
       })
-    case 'SWAP_TODOS':
-      // payload:
-      //  - dragId: id of currently held dragitem
-      //  - swapId: id of item being swapped with
-      //  - listId: id of list where this is happening
-      if (action.payload.dragId === action.payload.swapId) {
-        return;
-      }
-      return state.map( list => {
-        
-        if (list.id === action.payload.listId) {
-          let dragIndex = list.items.indexOf(action.payload.dragId);
-          let swapIndex = list.items.indexOf(action.payload.swapId);
-          let sortedIndexes = [dragIndex, swapIndex].sort();
-          return {
-            ...list,
-            items: [
-              list.items.slice(0, sortedIndexes[0]),
-              list.items[sortedIndexes[0]],
-              list.items[sortedIndexes[1]],
-              list.items.slice(
-                sortedIndexes[1]+1,
-                list.items.length)
-            ],
-          }
-        } else {
-          return list
-        }
-      });
     case 'REMOVE_TODO':
       // payload:
       //  - listId: id of list losing the todo
@@ -110,46 +81,12 @@ const itemReducer = (state, action) => {
     case 'UPDATE_TODO_CONTENT':
       obj = state[action.payload.id];
       return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
-    case 'SWAP_TODO_INDEX':
-      // receives two item ids, swaps their index values
-      // payload: {
-      //    hoverIndex: integer index of hovered item
-      //    draggedIndex: integer index of dragged item
-      //    hoverId: integer ID of hovered item
-      //    draggedId: integer ID of dragged item
-      //    }
-      const draggedIndex = action.payload.draggedIndex;
-      return state.map( item => {
-        if (item.id === action.payload.draggedId) {
-          return {...item, index: action.payload.hoverIndex}
-        } else if (item.id === action.payload.hoverId) {
-          return {...item, index: draggedIndex}
-        } else {
-          return item;
-        }
-      });
     case 'SET_IS_PLACEHOLDER':
       obj = state[action.payload.itemId];
       return {...state, [action.payload.itemId]: {...obj, isPlaceholder: action.payload.isPlaceholder}};
     default:
       return state;
   }
-};
-
-const dragReducer = (state, action) => {
-  switch(action.type) {
-    case 'SET_DRAGGED_ITEM':
-      return {...state, item: action.payload.item,
-        index: action.payload.index};
-    case 'CLEAR_DRAGGED_ITEM':
-      return {...state, item: null};
-    case 'UPDATE_HOVERED_LIST':
-      return {...state, list: action.payload};
-    case 'CLEAR_HOVERED_LIST':
-      return {...state, list: null}
-    default:
-      return state;
-    }
 };
 
 export const ListDispatchContext = React.createContext(null);
@@ -204,12 +141,10 @@ const initialListState = [
 ];
 
 const initialItemState = {};
-const initialDragState = {};
 
 const Todoboard = (props) => {
   const [lists, listDispatch] = React.useReducer(listReducer, initialListState);
   const [allItems, itemDispatch] = React.useReducer(itemReducer, initialItemState);
-  const [draggedItem, dragDispatch] = React.useReducer(dragReducer, initialDragState);
 
   const [nextItemId, setNextItemId] = React.useState(props.startId || 0);
 
@@ -254,31 +189,6 @@ const Todoboard = (props) => {
 
   const getListSize = (listId) => {
     return lists[listId].items.length;
-  };
-
-  const handleDragEnd = (event) => {
-    dragDispatch({
-      type: 'CLEAR_DRAGGED_ITEM',
-    });
-    dragDispatch({
-      type: 'CLEAR_HOVERED_LIST',
-    });
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    itemDispatch({
-      type: 'SET_IS_PLACEHOLDER',
-      payload: {
-        itemId: draggedItem.item, 
-        isPlaceholder: false},
-    });
-    dragDispatch({
-      type: 'CLEAR_DRAGGED_ITEM',
-    });
-    dragDispatch({
-      type: 'CLEAR_HOVERED_LIST',
-    });
   };
 
   const AddListButton = () => {
@@ -352,12 +262,9 @@ const Todoboard = (props) => {
                 id={list.id}
                 ownedItems={list.items}
                 allItems={allItems}
-                getSize={getListSize}
                 getId={getId} 
                 canDelete={true}
                 canEditTitle={true}
-                draggedItem={draggedItem}
-                dragDispatch={dragDispatch}
               onDeleteClick={() => removeList(list.id)}
              />
             </>
