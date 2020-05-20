@@ -3,12 +3,15 @@ import Todoboard from './Todoboard';
 
 import './App.css';
 
-const App = () => {
-  return (
-    <div className="app">
-      <Todoboard />
-    </div>
-  );
-};
+class App extends React.Component {
+
+  render() {
+    return (
+        <div className="app">
+          <Todoboard />
+        </div>
+    );
+  }
+}
 
 export default App;

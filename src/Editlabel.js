@@ -33,7 +33,7 @@ const Editlabel = (props) => {
         >
           <input
             draggable={false}
-            className={props.class}
+            className={props.className}
             value={props.content}
             autoFocus={true}
             onFocus={event => event.target.select()}
@@ -44,7 +44,7 @@ const Editlabel = (props) => {
           </input>
         </form>
       : <span 
-          className={props.class}
+          className={props.className}
           onClick={event => props.setIsEdit(true)}
         >{props.content}</span>
     }

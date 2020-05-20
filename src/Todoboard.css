@@ -23,6 +23,7 @@
   }
   
   .calendar-individual {
+    height: 100%;
     width: 90%;
   }
 }
@@ -100,7 +101,7 @@
 
 .todo-list {
   background-color: var(--list-content-color);
-  padding: 0 10px;
+  padding: 5px 10px;
   display: flex;
   flex-direction: column;
   flex-basis: auto;
@@ -109,7 +110,7 @@
 
 .calendar-list {
   background-color: var(--list-content-color);
-  padding: 0 10px;
+  padding: 5px 10px;
   margin: 0;
   display: flex;
   flex-direction: column;

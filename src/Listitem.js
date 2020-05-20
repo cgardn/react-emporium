@@ -1,5 +1,6 @@
 import React from 'react'
 import Editlabel from './Editlabel';
+import {Draggable} from 'react-beautiful-dnd';
 
 import {ItemDispatchContext} from './Todoboard';
 
@@ -54,48 +55,58 @@ const Listitem = (props) => {
     console.log("entered");
   };
 
-  return (
-    <>
-    <div
-      className="list-item"
-      draggable={isEdit ? "false" : "true"}
-      onDragStart={handleDragStart}
-      onDragEnter={handleDragEnter}
-    >
-      {!props.isPlaceholder &&
-    <>
-      <Editlabel
-        class={"list-item-objects list-item-label"}
-        id={props.id}
-        content={props.content}
-        onChange={props.onChange}
-        isEdit={isEdit}
-        setIsEdit={setIsEdit}
-      />
-      <button
-        className="deleteItemButton list-item-objects"
-        onClick={event => setContextMenu([event.pageX, event.pageY, !contextMenu[2]])}
+  const DeleteButton = () => {
+    return (
+        <button
+          className="deleteItemButton list-item-objects"
+          onClick={event => setContextMenu([event.pageX, event.pageY, !contextMenu[2]])}
+        >
+        {String.fromCharCode(9899) + ' ' + String.fromCharCode(9899) + ' ' + String.fromCharCode(9899)}
+        </button>
+    );
+  };
+
+  const Container = (props) => {
+    return (
+      <Draggable 
+        key={props.id}
+        draggableId={props.id.toString()} 
+        index={parseInt(props.index)}
       >
-      {String.fromCharCode(9899) + ' ' + String.fromCharCode(9899) + ' ' + String.fromCharCode(9899)}
-      </button>
-      {contextMenu[2] && 
-        <Itemmenu
-          posX={contextMenu[0]}
-          posY={contextMenu[1]}
-          onClick={props.onDeleteClick}
-          onBlur={event => setContextMenu([0,0,!contextMenu])}
+        {(provided) => (
+          <div 
+            className="list-item" 
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+          >
+            {props.children}
+          </div>
+        )}
+      </Draggable>
+    );
+  };
+
+  return (
+      <Container id={props.id} index={parseInt(props.index)}>
+        <Editlabel
+          className={"list-item-objects list-item-label"}
+          id={props.id}
+          content={props.content}
+          onChange={props.onChange}
+          isEdit={isEdit}
+          setIsEdit={setIsEdit}
         />
-      }
-    </>
-      }
-      {props.isPlaceholder &&
-        <div 
-          className="list-item-placeholder"
-          onDragStart={handleDragStart}
-        ></div>
-      }
-    </div>
-    </>
+        <DeleteButton />
+        {contextMenu[2] && 
+          <Itemmenu
+            posX={contextMenu[0]}
+            posY={contextMenu[1]}
+            onClick={props.onDeleteClick}
+          onBlur={event => setContextMenu([0,0,!contextMenu])}
+          />
+        }
+      </Container>
   );
 };
 

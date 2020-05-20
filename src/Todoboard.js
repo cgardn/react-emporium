@@ -1,5 +1,6 @@
 import React from 'react';
 import Todolist from './Todolist';
+import {DragDropContext} from 'react-beautiful-dnd';
 import './Todoboard.css';
 
 const listReducer = (state, action) => {
@@ -36,6 +37,18 @@ const listReducer = (state, action) => {
           return list
         }
       });
+    case 'MOVE_TODO':
+      let movedItem = state.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
+      return state.map( list => {
+        if (list.id === action.payload.destList) {
+          return {
+            ...list,
+            items: list.items.slice(0,action.payload.destIndex).concat(movedItem).concat(list.items.slice(action.payload.destIndex, list.items.length)),
+          }
+        } else {
+          return list
+        }
+      })
     case 'SWAP_TODOS':
       // payload:
       //  - dragId: id of currently held dragitem
@@ -268,21 +281,46 @@ const Todoboard = (props) => {
     });
   };
 
+  const AddListButton = () => {
+    return (
+      <button
+        className="addListButton"
+        onClick={addList}
+      >{"+ Add list"}</button>
+    );
+  };
+
+  const ListContainer = (props) => {
+    return (
+      <div className={props.thisClass}>
+        <div className={`${props.thisClass}-container`}>
+          {props.children}
+        </div>
+      </div>
+    );
+  };
+
+  const onDragEnd = ({source, destination}) => {
+    if (source === null || destination === null) return;
+    listDispatch({
+      type: 'MOVE_TODO',
+      payload: {
+        sourceList: source.droppableId,
+        sourceIndex: source.index,
+        destList: destination.droppableId,
+        destIndex: destination.index,
+      }
+    });
+  };
 
   return (
     <>
+    <DragDropContext onDragEnd={onDragEnd}>
     <ListDispatchContext.Provider value={listDispatch}>
     <ItemDispatchContext.Provider value={itemDispatch}>
-    <div className="calendar">
-      <div className="calendar-container" >
+    <ListContainer thisClass="calendar">
         {lists.map( (list, index) => (
           (index <= 6) &&
-            <div 
-              className="calendar-individual"
-              key={list.id}
-              onDragEnd={handleDragEnd}
-              onDrop={handleDrop}
-            >
               <>
               <Todolist
                 thisClass={"calendar"}
@@ -295,59 +333,42 @@ const Todoboard = (props) => {
                 getId={getId}
                 canDelete={false}
                 canEditTitle={false}
-                isHovered={draggedItem.list === list.id}
-                draggedItem={draggedItem}
-                dragDispatch={dragDispatch}
                 onDeleteClick={() => removeList(list.id)}
               />
               </>
-            </div>
         ))}
-      </div>
-    </div>
+    </ListContainer>
     <hr style={{width: "90vw"}}/>
-    <div className="todo">
-    <div className="todo-container">
-    {lists.length > 0 &&
-      <>
-      {lists.map( (list, index) => (
-        (index > 6) && 
-        <div 
-          className="todo-individual" 
-          key={list.id}
-          onDragEnd={handleDragEnd}
-          onDrop={handleDrop}
-        >
-        <>
-        <Todolist
-          thisClass={"todo"}
-          title={list.title}
-          key={list.id}
-          id={list.id}
-          ownedItems={list.items}
-          allItems={allItems}
-          getSize={getListSize}
-          getId={getId} 
-          canDelete={true}
-          canEditTitle={true}
-          draggedItem={draggedItem}
-          dragDispatch={dragDispatch}
-          onDeleteClick={() => removeList(list.id)}
-        />
-        </>
-        </div>
-      ))}
-      </>
-    }
-
-    <button
-      className="addListButton"
-      onClick={addList}
-    >{"+ Add list"}</button>
-    </div>
-    </div>
+    <ListContainer thisClass="todo">
+        {lists.length > 0 &&
+          <>
+          {lists.map( (list, index) => (
+            (index > 6) && 
+            <>
+             <Todolist
+                thisClass={"todo"}
+                title={list.title}
+                key={list.id}
+                id={list.id}
+                ownedItems={list.items}
+                allItems={allItems}
+                getSize={getListSize}
+                getId={getId} 
+                canDelete={true}
+                canEditTitle={true}
+                draggedItem={draggedItem}
+                dragDispatch={dragDispatch}
+              onDeleteClick={() => removeList(list.id)}
+             />
+            </>
+          ))}
+          </>
+        }
+        <AddListButton />
+    </ListContainer>
     </ItemDispatchContext.Provider>
     </ListDispatchContext.Provider>
+    </DragDropContext>
     </>
   )
 };

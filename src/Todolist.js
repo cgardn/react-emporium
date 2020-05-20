@@ -2,6 +2,7 @@ import React from 'react';
 import Editlabel from './Editlabel';
 import Listitem from './Listitem';
 import {ListDispatchContext, ItemDispatchContext} from './Todoboard.js';
+import { Droppable } from 'react-beautiful-dnd';
 
 const Todolist = (props) => {
   const listDispatch = React.useContext(ListDispatchContext);
@@ -90,16 +91,12 @@ const Todolist = (props) => {
     console.log("swap items");
   };
 
-  const getOwnedItems = () => {
-    return props.ownedItems;
-  };
-
   const renderedItems = (
-    getOwnedItems().map( item => (
+    props.ownedItems.map( (item, index) => (
           <Listitem
             key={props.allItems[item].id}
             id={props.allItems[item].id}
-            index={props.allItems[item].index}
+            index={index}
             content={props.allItems[item].content}
             isPlaceholder={props.allItems[item].isPlaceholder}
             swapItems={handleSwapItems}
@@ -120,25 +117,25 @@ const Todolist = (props) => {
     console.log(event);
   };
 
-  return (
-    <div 
-      style={{height: "100%"}}
-      onDragEnter={event => handleDragEnter(event)}
-      onDragOver={handleDragOver}
-      onPointerDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
-    >
+  const Container = (props) => {
+    return (
+      <div className={`${props.thisClass}-individual`}>
+        {props.children}
+      </div>
+    );
+  };
+
+  const Title = () => {
+    return (
       <div className={`${props.thisClass}-individual-title`}>
         <Editlabel
-          class={"list-item-objects list-item-label"}
+          className={"list-item-objects list-item-label"}
           id={props.id}
           content={props.title}
           onChange={changeListTitle}
           isEdit={isTitleEdit}
           setIsEdit={setTitleEdit}
-          titleEdit={[isTitleEdit, setTitleEdit]}
         />
-      
       {props.canDelete &&
         <button
           className="list-delete-button"
@@ -146,22 +143,43 @@ const Todolist = (props) => {
         >X</button>
       }
       </div>
+    );
+  };
 
-      <div 
-        className={`${props.thisClass}-list`}
-      >
-        <div
-          className="list-content"
-        >
-        {renderedItems}
-        </div>
-        <button
-          className={"addItemButton"}
-          style={{ fontsize: '2rem' }}
-          onClick={handleAdditemClick}
-        >{"+"}</button>
-      </div>
-    </div>
+  const List = () => {
+    
+    return (
+      <Droppable droppableId={props.id}>
+        { (provided) => (
+          <div 
+            ref={provided.innerRef} 
+            {...provided.droppableProps}
+            className={`${props.thisClass}-list`}
+          >
+            {renderedItems}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    );
+  };
+
+  const AddButton = () => {
+    return (
+      <button
+        className={"addItemButton"}
+        style={{ fontsize: '2rem' }}
+        onClick={handleAdditemClick}
+      >{"+"}</button>
+    );
+  };
+
+  return (
+    <Container thisClass={props.thisClass}>
+      <Title />
+      <List />
+      <AddButton />
+    </Container>
   );
 };
 
