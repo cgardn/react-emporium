@@ -2,8 +2,6 @@ import React from 'react'
 import Editlabel from './Editlabel';
 import {Draggable} from 'react-beautiful-dnd';
 
-import {ItemDispatchContext} from './Todoboard';
-
 // A single todo item. Editable (with Editlabel), and draggable, onto any <Todolist /> 
 //
 // props:
@@ -32,28 +30,6 @@ const Listitem = (props) => {
   // State hooks
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
   const [isEdit, setIsEdit] = React.useState(false);
-
-  // Context consumers
-  const itemDispatch = React.useContext(ItemDispatchContext);
-
-  const handleDragStart = (event) => {
-    itemDispatch({
-      type: 'SET_IS_PLACEHOLDER',
-      payload: {
-        itemId: props.id,
-        isPlaceholder: true}
-    });
-    props.dragDispatch({
-      type: 'SET_DRAGGED_ITEM',
-      payload: {item: props.id, index: props.index},
-    });
-  };
-
-  const handleDragEnter = (event) => {
-    event.stopPropagation();
-    if (props.isPlaceholder) return;
-    console.log("entered");
-  };
 
   const DeleteButton = () => {
     return (
