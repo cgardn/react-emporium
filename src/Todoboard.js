@@ -29,7 +29,38 @@ const listReducer = (state, action) => {
             return list;
           }
           let insertIndex = (action.payload.itemIndex === -1 ? list.items.length : action.payload.itemIndex)
+          // bandaid to fix insertIndex arriving as undefined
+          if (isNaN(insertIndex)) insertIndex = list.items.length;
           return {...list, items: list.items.slice(0,insertIndex).concat(action.payload.itemId).concat(list.items.slice(insertIndex, list.items.length))}
+        } else {
+          return list
+        }
+      });
+    case 'SWAP_TODOS':
+      // payload:
+      //  - dragId: id of currently held dragitem
+      //  - swapId: id of item being swapped with
+      //  - listId: id of list where this is happening
+      if (action.payload.dragId === action.payload.swapId) {
+        return;
+      }
+      return state.map( list => {
+        
+        if (list.id === action.payload.listId) {
+          let dragIndex = list.items.indexOf(action.payload.dragId);
+          let swapIndex = list.items.indexOf(action.payload.swapId);
+          let sortedIndexes = [dragIndex, swapIndex].sort();
+          return {
+            ...list,
+            items: [
+              list.items.slice(0, sortedIndexes[0]),
+              list.items[sortedIndexes[0]],
+              list.items[sortedIndexes[1]],
+              list.items.slice(
+                sortedIndexes[1]+1,
+                list.items.length)
+            ],
+          }
         } else {
           return list
         }
@@ -40,12 +71,9 @@ const listReducer = (state, action) => {
       //  - itemId: id of the item being removed
       //  : should check and make sure there's only one of
       //     the specified id?
-      console.log("removing todo", action.payload);
-      console.log("State:", state);
       return state.map( list => {
         if (list.id === action.payload.listId) {
           let obj = list.items;
-          console.log("obj:", obj);
           return {...list, items: obj.filter(
             item => item !== action.payload.itemId),}
         } else {
@@ -69,22 +97,6 @@ const itemReducer = (state, action) => {
     case 'UPDATE_TODO_CONTENT':
       obj = state[action.payload.id];
       return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
-    case 'UPDATE_TODO_INDEX':
-      return state.map( item => {
-        if (item.id === action.payload.id) {
-          return {...item, index: action.payload.index}
-        } else {
-          return item
-        }
-      });
-    case 'INSERT_INTO_LIST':
-      return state.map( item => {
-        if (item.index >= action.payload.index) {
-          return {...item, index: item.index+1}
-        } else {
-          return item
-        }
-      });
     case 'SWAP_TODO_INDEX':
       // receives two item ids, swaps their index values
       // payload: {
@@ -222,6 +234,7 @@ const Todoboard = (props) => {
           });
         });
       }
+      return list
     });
     listDispatch({type: 'REMOVE_LIST', listId: listId});
   };
@@ -231,7 +244,6 @@ const Todoboard = (props) => {
   };
 
   const handleDragEnd = (event) => {
-    console.log("dragend, bubbled to board");
     dragDispatch({
       type: 'CLEAR_DRAGGED_ITEM',
     });

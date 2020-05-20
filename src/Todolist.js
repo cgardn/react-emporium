@@ -9,8 +9,6 @@ const Todolist = (props) => {
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
   const handleDragEnter = (event) => {
-    event.preventDefault();  
-    event.stopPropagation();
     listDispatch({
       type: 'INSERT_TODO',
       payload: {
@@ -112,11 +110,23 @@ const Todolist = (props) => {
     ))
   );
 
+  const handleMouseDown = (event) => {
+    console.log("X, Y", event.pageX, event.pageY);
+    console.log(event.currentTarget);
+    console.log(event);
+  };
+
+  const handleTouchStart = (event) => {
+    console.log(event);
+  };
+
   return (
     <div 
       style={{height: "100%"}}
       onDragEnter={event => handleDragEnter(event)}
       onDragOver={handleDragOver}
+      onPointerDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
     >
       <div className={`${props.thisClass}-individual-title`}>
         <Editlabel

@@ -48,12 +48,19 @@ const Listitem = (props) => {
     });
   };
 
+  const handleDragEnter = (event) => {
+    event.stopPropagation();
+    if (props.isPlaceholder) return;
+    console.log("entered");
+  };
+
   return (
     <>
     <div
       className="list-item"
       draggable={isEdit ? "false" : "true"}
       onDragStart={handleDragStart}
+      onDragEnter={handleDragEnter}
     >
       {!props.isPlaceholder &&
     <>
