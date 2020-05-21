@@ -228,7 +228,7 @@ const Todoboard = (props) => {
     <DragDropContext onDragEnd={onDragEnd}>
     <ListDispatchContext.Provider value={listDispatch}>
     <ItemDispatchContext.Provider value={itemDispatch}>
-    <ListContainer thisClass="calendar">
+    <ListContainer thisClass="calendar" key="calendarcontainer">
         {lists.map( (list, index) => (
           (index <= 6) &&
               <>
@@ -249,7 +249,7 @@ const Todoboard = (props) => {
         ))}
     </ListContainer>
     <hr style={{width: "90vw"}}/>
-    <ListContainer thisClass="todo">
+    <ListContainer thisClass="todo" key="todolistcontainer">
         {lists.length > 0 &&
           <>
           {lists.map( (list, index) => (
@@ -271,7 +271,7 @@ const Todoboard = (props) => {
           ))}
           </>
         }
-        <AddListButton />
+        <AddListButton key="addlistbutton" />
     </ListContainer>
     </ItemDispatchContext.Provider>
     </ListDispatchContext.Provider>

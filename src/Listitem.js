@@ -29,7 +29,7 @@ const Itemmenu = (props) => {
 const Listitem = (props) => {
   // State hooks
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
-  const [isEdit, setIsEdit] = React.useState(false);
+  const [isEdit, setIsEdit] = React.useState(true);
 
   const DeleteButton = () => {
     return (

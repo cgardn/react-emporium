@@ -66,7 +66,6 @@ const Todolist = (props) => {
         id={props.allItems[item].id}
         index={index}
         content={props.allItems[item].content}
-        isPlaceholder={props.allItems[item].isPlaceholder}
         onChange={changeItem}
         onDeleteClick={() => removeItem(item)}
       />
@@ -131,10 +130,10 @@ const Todolist = (props) => {
   };
 
   return (
-    <Container thisClass={props.thisClass}>
-      <Title />
-      <List />
-      <AddButton />
+    <Container thisClass={props.thisClass} key={`listcontainer-${props.id}`}>
+      <Title key={`listtitle-${props.id}`}/>
+      <List key={`listcontent-${props.id}`}/>
+      <AddButton key={`addtodobutton=${props.id}`}/>
     </Container>
   );
 };

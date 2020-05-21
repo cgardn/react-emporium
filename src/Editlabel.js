@@ -1,4 +1,5 @@
 import React from 'react';
+import {useCallback} from 'react';
 
 const Editlabel = (props) => {
   // Editable label, a span that replaces itself with an Input box+form on click
@@ -13,10 +14,11 @@ const Editlabel = (props) => {
   //  onChange: function ref for controlling input on parent
   //            state
 
-  const preventDrag = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
+  const callbackRef = useCallback(inputBox => {
+    if (inputBox) {
+      inputBox.focus();
+    }
+  }, []);
 
   return (
     <>
@@ -26,20 +28,13 @@ const Editlabel = (props) => {
             event.preventDefault()
             props.setIsEdit(false)}
           }
-          onDragStart={event => {
-            return false
-          }}
-          draggable={false}
         >
           <input
-            draggable={false}
             className={props.className}
             value={props.content}
-            autoFocus={true}
-            onFocus={event => event.target.select()}
+            ref={callbackRef}
             onChange={event => props.onChange(props.id, event.target.value)}
             onBlur={event => props.setIsEdit(false)}
-            onDragStart={preventDrag}
           >
           </input>
         </form>
