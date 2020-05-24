@@ -74,7 +74,11 @@ const itemReducer = (state, action) => {
   let obj = null;
   switch(action.type) {
     case 'ADD_TODO':
-      return {...state, [action.payload.id]: action.payload};
+      const newTodo = {
+        id: action.payload.id,
+        content: "Click to edit",
+      }
+      return {...state, [action.payload.id]: newTodo};
     case 'REMOVE_TODO':
       delete state[action.payload.itemId];
       return state;
@@ -125,6 +129,7 @@ const initialListState = [
 ];
 
 const initialItemState = {};
+const initialIdState = {freeIds: [], nextId: 0}
 
 const Todoboard = (props) => {
   const [lists, listDispatch] = React.useReducer(listReducer, initialListState);

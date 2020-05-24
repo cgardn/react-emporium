@@ -49,7 +49,6 @@ const Todolist = (props) => {
       type: 'ADD_TODO',
       payload: {
         id: newId,
-        content: "Click to edit",
       }
     });
   };
