@@ -9,6 +9,8 @@ const Todolist = (props) => {
   const itemDispatch = React.useContext(ItemDispatchContext);
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
+  // assigning props from props.list
+
   const changeItem = (id, newContent) => {
     itemDispatch({
       type: 'UPDATE_TODO_CONTENT',
@@ -20,34 +22,35 @@ const Todolist = (props) => {
     itemDispatch({
       type: 'REMOVE_TODO',
       payload: {
-        listId: props.id,
+        listId: props.list.id,
         itemId: id,
       },
     });
     listDispatch({
       type: 'REMOVE_TODO',
       payload: {
-        listId: props.id,
+        listId: props.list.id,
         itemId: id,
       },
     });
   };
 
   const handleAdditemClick = () => {
+    const newId = props.getId();
     listDispatch({
       type: 'INSERT_TODO',
       payload: {
-        listId: props.id,
-        itemId: props.getId(),
+        listId: props.list.id,
+        itemId: newId,
         itemIndex: -1,
       }
     });
     itemDispatch({
       type: 'ADD_TODO',
       payload: {
-        id: props.getId(),
+        id: newId,
         content: "Click to edit",
-        isPlaceholder: false}
+      }
     });
   };
 
@@ -60,7 +63,7 @@ const Todolist = (props) => {
   };
 
   const renderedItems = (
-    props.ownedItems.map( (item, index) => (
+    props.list.items.map( (item, index) => (
       <Listitem
         key={props.allItems[item].id}
         id={props.allItems[item].id}
@@ -85,8 +88,8 @@ const Todolist = (props) => {
       <div className={`${props.thisClass}-individual-title`}>
         <Editlabel
           className={"list-item-objects list-item-label"}
-          id={props.id}
-          content={props.title}
+          id={props.list.id}
+          content={props.list.title}
           onChange={changeListTitle}
           isEdit={isTitleEdit}
           setIsEdit={setTitleEdit}
@@ -104,7 +107,7 @@ const Todolist = (props) => {
   const List = () => {
     
     return (
-      <Droppable droppableId={props.id}>
+      <Droppable droppableId={props.list.id}>
         { (provided) => (
           <div 
             ref={provided.innerRef} 
@@ -130,10 +133,10 @@ const Todolist = (props) => {
   };
 
   return (
-    <Container thisClass={props.thisClass} key={`listcontainer-${props.id}`}>
-      <Title key={`listtitle-${props.id}`}/>
-      <List key={`listcontent-${props.id}`}/>
-      <AddButton key={`addtodobutton=${props.id}`}/>
+    <Container thisClass={props.thisClass} key={`listcontainer-${props.list.id}`}>
+      <Title key={`listtitle-${props.list.id}`}/>
+      <List key={`listcontent-${props.list.id}`}/>
+      <AddButton key={`addtodobutton=${props.list.id}`}/>
     </Container>
   );
 };

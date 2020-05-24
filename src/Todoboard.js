@@ -81,9 +81,6 @@ const itemReducer = (state, action) => {
     case 'UPDATE_TODO_CONTENT':
       obj = state[action.payload.id];
       return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
-    case 'SET_IS_PLACEHOLDER':
-      obj = state[action.payload.itemId];
-      return {...state, [action.payload.itemId]: {...obj, isPlaceholder: action.payload.isPlaceholder}};
     default:
       return state;
   }
@@ -100,21 +97,8 @@ export const ItemDispatchContext = React.createContext(null);
 //  - itemReducer: An array of item objects:
 //      - id: Integer, unique within the application
 //      - content: String, the actual todo-text input by user
-//      - index: order placement on the list
-//  - dragReducer: Object with info about current drag operation
-//      - item: Integer, id of currently dragged item
-//      - list: Integer, id of currently hovered list
-//       
-//  
-//  * Dragged item information is tracked outside of the 
-//    built-in event.dataTransfer object, because the HTML5
-//    drag-and-drop spec does not allow dataTransfer to be
-//    accessed during a dragOver event. However, I need to 
-//    know which item is being dragged over so I can update
-//    it's owning list, and index/order in the list, as the
-//    user drags the item around - allowing for visual 
-//    feedback in the form of a placeholder/shadow item
-//    underneath the user's cursor.
+//      - isEdit: boolean, controls edit mode on Todos
+//
 // 
 //  There are a handful of properties that don't get stored
 //    in the reducer, for example whether a list can be 
@@ -234,12 +218,9 @@ const Todoboard = (props) => {
               <>
               <Todolist
                 thisClass={"calendar"}
-                title={list.title}
+                list={list}
                 key={list.id}
-                id={list.id}
-                ownedItems={list.items}
                 allItems={allItems}
-                getSize={getListSize}
                 getId={getId}
                 canDelete={false}
                 canEditTitle={false}
