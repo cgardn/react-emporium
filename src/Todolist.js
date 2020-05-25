@@ -6,7 +6,6 @@ import { Droppable } from 'react-beautiful-dnd';
 
 const Todolist = (props) => {
   const stateDispatch = React.useContext(StateDispatchContext);
-  const [isTitleEdit, setTitleEdit] = React.useState(false);
 
   const changeItem = (id, newContent) => {
     stateDispatch({
@@ -28,6 +27,14 @@ const Todolist = (props) => {
     stateDispatch({
       type: 'ADD_TODO',
       listId: props.id,
+    });
+  };
+
+  const setTitleEdit = (newContent) => {
+    stateDispatch({
+      type: 'SET_LIST_TITLE_IS_EDIT',
+      listId: props.id,
+      newState: newContent,
     });
   };
 
@@ -68,7 +75,7 @@ const Todolist = (props) => {
           id={props.list.id}
           content={props.list.title}
           onChange={changeListTitle}
-          isEdit={isTitleEdit}
+          isEdit={props.list.isTitleEdit}
           setIsEdit={setTitleEdit}
         />
       {props.canDelete &&

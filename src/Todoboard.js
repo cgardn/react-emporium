@@ -96,6 +96,20 @@ const stateReducer = (state, action) => {
       return {...state, lists: state.lists.filter(
         list => list.id !== action.listId)
       };
+    case 'SET_LIST_TITLE_IS_EDIT':
+      // turn edit mode on or off for a particular list title
+      // listId: numerical ID of the list in question
+      // newState: true or false
+      return {...state,
+        lists: state.lists.map( list => {
+          if (list.id === action.listId) {
+            list.isTitleEdit = action.newState; 
+            return list
+          } else {
+            return list
+          }
+        }),
+      };
     case 'UPDATE_LIST_TITLE':
       // update the title of a particular list
       // listId: numerical ID of the list in question
@@ -114,12 +128,6 @@ const stateReducer = (state, action) => {
       // sourceIndex: index of position when drag began
       // destList: numerical ID of list where drag ended
       // destIndex: index of position when drag ended
-      //let movedItem = state.lists.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
-      console.log(action.payload.sourceList);
-      console.log(state.lists.find(list => list.id === action.payload.sourceList));
-      let fromList = state.lists.find(
-        list => list.id === action.payload.sourceList
-      );
       let movedItem = state.lists.find(
         list => list.id === action.payload.sourceList
       ).items.splice(
@@ -184,13 +192,13 @@ const initialIdState = {freeIds: [], nextId: 0}
 // new unified state object
 const initialState = {
   lists: [
-    {id: 'm', title: "Monday", items: []},
-    {id: 't', title: "Tuesday", items: []},
-    {id: 'w', title: "Wednesday", items: []},
-    {id: 'r', title: "Thursday", items: []},
-    {id: 'f', title: "Friday", items: []},
-    {id: 's', title: "Saturday", items: []},
-    {id: 'u', title: "Sunday", items: []},
+    {id:'m', title: "Monday", items: [], isTitleEdit: false},
+    {id:'t', title: "Tuesday", items: [], isTitleEdit: false},
+    {id:'w', title: "Wednesday", items: [], isTitleEdit: false},
+    {id:'r', title: "Thursday", items: [], isTitleEdit: false},
+    {id:'f', title: "Friday", items: [], isTitleEdit: false},
+    {id:'s', title: "Saturday", items: [], isTitleEdit: false},
+    {id:'u', title: "Sunday", items: [], isTitleEdit: false},
   ],
   items: {},
   freeIds: [],
@@ -241,7 +249,6 @@ const Todoboard = (props) => {
       }
       return list
     });
-    //listDispatch({type: 'REMOVE_LIST', listId: listId});
     stateDispatch({type: 'REMOVE_LIST', listId: listId});
   };
 
