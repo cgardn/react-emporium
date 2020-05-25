@@ -3,107 +3,6 @@ import Todolist from './Todolist';
 import {DragDropContext} from 'react-beautiful-dnd';
 import './Todoboard.css';
 
-/*
-const listReducer = (state, action) => {
-  switch(action.type) {
-    case 'ADD_LIST':
-      return {
-        ...state,
-        lists: [...state.lists, action.payload]
-      }
-    case 'REMOVE_LIST':
-      return {
-        ...state,
-        lists: state.lists.filter(
-          list => list.id !== action.listId
-        ),
-      }
-    case 'UPDATE_LIST_TITLE':
-      return state.map( list => {
-        if (list.id === action.id) {
-          return { ...list, title: action.payload};
-        } else {
-          return list
-        }
-      });
-    case 'INSERT_TODO':
-      // payload: 
-      //  - listId: id of list item goes into
-      //  - itemId: id of item being inserted
-      //  - insertIndex: index to insert item at, or -1 to append
-      return state.map( list => {
-        if (list.id === action.payload.listId) {
-          // return if item already in list, prevents adding
-          // multiple times when moving around inside list
-          if (list.items.includes(action.payload.itemId)) {
-            return list;
-          }
-          let insertIndex = (action.payload.itemIndex === -1 ? list.items.length : action.payload.itemIndex)
-          // bandaid to fix insertIndex arriving as undefined
-          if (isNaN(insertIndex)) insertIndex = list.items.length;
-          return {...list, items: list.items.slice(0,insertIndex).concat(action.payload.itemId).concat(list.items.slice(insertIndex, list.items.length))}
-        } else {
-          return list
-        }
-      });
-    case 'MOVE_TODO':
-      // used for react-beautiful-dnd to actually move the 
-      //   items from one list to another
-      let movedItem = state.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
-      return state.map( list => {
-        if (list.id === action.payload.destList) {
-          return {
-            ...list,
-            items: list.items.slice(0,action.payload.destIndex).concat(movedItem).concat(list.items.slice(action.payload.destIndex, list.items.length)),
-          }
-        } else {
-          return list
-        }
-      })
-    case 'REMOVE_TODO':
-      // payload:
-      //  - listId: id of list losing the todo
-      //  - itemId: id of the item being removed
-      //  : should check and make sure there's only one of
-      //     the specified id?
-      return state.map( list => {
-        if (list.id === action.payload.listId) {
-          let obj = list.items;
-          return {...list, items: obj.filter(
-            item => item !== action.payload.itemId),}
-        } else {
-          return list
-        }
-      });
-
-    default:
-      return state;
-  }
-};
-*/
-
-/*
-const itemReducer = (state, action) => {
-  let obj = null;
-  switch(action.type) {
-    case 'ADD_TODO':
-      const newTodo = {
-        id: action.payload.id,
-        content: "Click to edit",
-      }
-      return {...state, [action.payload.id]: newTodo};
-    case 'REMOVE_TODO':
-      delete state[action.payload.itemId];
-      return state;
-    case 'UPDATE_TODO_CONTENT':
-      obj = state[action.payload.id];
-      return {...state, [action.payload.id]: {...obj, content: action.payload.content}};
-    default:
-      return state;
-  }
-};
-*/
-
 const stateReducer = (state, action) => {
   const getId = () => {
     return (state.freeIds.length > 0)
@@ -118,6 +17,7 @@ const stateReducer = (state, action) => {
       //    list, with new ID from getId()
       // listId: id of the list where the new item will be
       //          appended
+      console.log("adding todo");
       const newTodo = {
         id: getId(),
         content: "Click to edit",
@@ -184,7 +84,7 @@ const stateReducer = (state, action) => {
       // payload: new list
       const newList = {
         title: "New List",
-        id: getId(),
+        id: getId().toString(),
         items: [],
       };
       console.log(state);
@@ -391,7 +291,7 @@ const Todoboard = (props) => {
                 todoState={todoState}
                 list={list}
                 index={index}
-                id={list.id}
+                id={list.id + ''}
                 key={list.id}
                 getId={getId}
                 canDelete={false}
