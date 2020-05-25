@@ -6,9 +6,17 @@ import './Todoboard.css';
 const listReducer = (state, action) => {
   switch(action.type) {
     case 'ADD_LIST':
-      return [ ...state, action.payload ];
+      return {
+        ...state,
+        lists: [...state.lists, action.payload]
+      }
     case 'REMOVE_LIST':
-      return state.filter(list => list.id !== action.listId);
+      return {
+        ...state,
+        lists: state.lists.filter(
+          list => list.id !== action.listId
+        ),
+      }
     case 'UPDATE_LIST_TITLE':
       return state.map( list => {
         if (list.id === action.id) {
@@ -38,6 +46,8 @@ const listReducer = (state, action) => {
         }
       });
     case 'MOVE_TODO':
+      // used for react-beautiful-dnd to actually move the 
+      //   items from one list to another
       let movedItem = state.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
       return state.map( list => {
         if (list.id === action.payload.destList) {
@@ -90,11 +100,139 @@ const itemReducer = (state, action) => {
   }
 };
 
+const stateReducer = (state, action) => {
+  const getId = () => {
+    return (state.freeIds.length > 0)
+      ? state.freeIds.pop()
+      : state.nextId++
+  };
+
+  // item management
+  let obj = null;
+  switch(action.type) {
+    case 'ADD_TODO':
+      // add a new todo to the item object and a particular
+      //    list, with new ID from getId()
+      // listId: id of the list where the new item will be
+      //          appended
+      const newTodo = {
+        id: getId(),
+        content: "Click to edit",
+        isEdit: true,
+      }
+      return {
+        ...state,
+        items: {
+          ...state.items,
+          [action.payload.id]: newTodo
+        },
+        lists: state.lists.map( list => {
+          if (list.id === action.listId) {
+            return {
+              ...list,
+              // just add it to the end of the list for now
+              items: list.items.push(newTodo.id)
+            };
+          } else {
+            return list
+          };
+        }),
+      };
+    case 'REMOVE_TODO':
+      // remove item from item object and owning list,
+      //   put id into freeIds stack
+      // listID: list that has this item
+      // itemID: the item in question
+
+      // add ID to freeIds stack
+      state.freeIds.push(action.itemId);
+      // remove item from item object
+      delete state.items[action.itemId]
+      // remap lists arrays without the deleted itemId
+      return {...state, lists: state.lists.map( list => {
+        if (list.id === action.listId) {
+          return {...list, items: list.items.filter(
+            item => item !== action.itemId)}
+        } else {
+          return list
+        }
+      })};
+    case 'SET_IS_EDIT':
+      // turn edit mode on or off for a particular todo
+      // itemId: numerical ID of the item in question
+      // newState: true or false
+      return {...state,
+        items: {
+          ...state.items,
+          [action.itemId]: {
+              ...state.items[action.itemId],
+              isEdit: action.newState},
+        }
+      }
+    case 'UPDATE_TODO_CONTENT':
+      // set new content for a particular todo
+      //   whether controlled or uncontrolled
+      // itemId: item in question
+      // content: new content to set
+      return {...state, items: {...state.items, [action.itemId]: {...state.items[action.itemId], content: action.content}}}
+  // list management
+    case 'ADD_LIST':
+      // add a new list, get id from getIds()
+      // payload: new list
+      const newList = {
+        title: "New List",
+        id: getId(),
+        items: [],
+      };
+      return {...state, lists: [...state.lists, newList]};
+    case 'REMOVE_LIST':
+      // remove a particular list, put id in freeIds stack
+      // listId: numerical ID of the list in question
+      state.freeIds.push(action.listId);
+      return {...state, lists: state.lists.filter(
+        list => list.id !== action.listId)
+      };
+    case 'UPDATE_LIST_TITLE':
+      // update the title of a particular list
+      // listId: numerical ID of the list in question
+      // newTitle: updated title
+      return {...state, lists: state.lists.map( list => {
+        if (list.id === action.listId) {
+          return {...list, title: action.newTitle}
+        } else {
+          return list
+        }
+      })};
+    case 'MOVE_TODO':
+      // used for react-beautiful-dnd to actually move the 
+      //   items from one list to another
+      // sourceList: numerical ID of list where drag began
+      // sourceIndex: index of position when drag began
+      // destList: numerical ID of list where drag ended
+      // destIndex: index of position when drag ended
+      let movedItem = state.lists.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
+      return {...state, lists: state.lists.map( list => {
+        if (list.id === action.payload.destList) {
+          return {
+            ...list,
+            items: list.items.slice(0,action.payload.destIndex).concat(movedItem).concat(list.items.slice(action.payload.destIndex, list.items.length)),
+          }
+        } else {
+          return list
+        }
+      })};
+    default:
+      return state;
+  }
+}
+  
+
+
 export const ListDispatchContext = React.createContext(null);
 export const ItemDispatchContext = React.createContext(null);
 
 // Data architecture:
-//  Three reducers:
+//  Two reducers:
 //  - listReducer: An array of JS Objects
 //      - id: Integer, unique within the application
 //      - title: String, title of the list
@@ -106,13 +244,8 @@ export const ItemDispatchContext = React.createContext(null);
 // 
 //  There are a handful of properties that don't get stored
 //    in the reducer, for example whether a list can be 
-//    deleted - this is hardcoded to off for the weekdays, and
+//    deleted - hardcoded to off for the weekdays, and
 //    on for everything else. May change in the future.
-//
-//  Lists also receive their current number of items as a prop
-//    for passing through itemDispatch to set correct item 
-//    order (new items are assigned index=listSize) 
-//      -> no longer true since switch to arrays of items on lists
 //
 //  The board is constructed by referencing both reducers to
 //    get the lists and their items, pulling item content out
@@ -130,6 +263,22 @@ const initialListState = [
 
 const initialItemState = {};
 const initialIdState = {freeIds: [], nextId: 0}
+
+// new unified state object
+const initialState = {
+  lists: [
+    {id: 'm', title: "Monday", items: []},
+    {id: 't', title: "Tuesday", items: []},
+    {id: 'w', title: "Wednesday", items: []},
+    {id: 'r', title: "Thursday", items: []},
+    {id: 'f', title: "Friday", items: []},
+    {id: 's', title: "Saturday", items: []},
+    {id: 'u', title: "Sunday", items: []},
+  ],
+  items: {},
+  freeIds: [],
+  nextId: 0,
+}
 
 const Todoboard = (props) => {
   const [lists, listDispatch] = React.useReducer(listReducer, initialListState);
@@ -153,8 +302,12 @@ const Todoboard = (props) => {
   };
 
   const addList = () => {
-    const nl = newList();
-    listDispatch({type: 'ADD_LIST', listId: nl.id, payload: nl});
+    const newList = newList();
+    listDispatch({
+      type: 'ADD_LIST',
+      listId: newList.id,
+      payload: newList,
+    });
   };
 
   const removeList = (listId) => {
