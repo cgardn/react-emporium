@@ -52,7 +52,7 @@ const Todolist = (props) => {
         key={item}
         id={item}
         index={index}
-        content={props.todoState.items[item].content}
+        itemObject={props.todoState.items[item]}
         onChange={changeItem}
         onDeleteClick={() => removeItem(item)}
       />

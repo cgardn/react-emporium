@@ -1,14 +1,15 @@
 import React from 'react'
 import Editlabel from './Editlabel';
 import {Draggable} from 'react-beautiful-dnd';
+import {StateDispatchContext} from './Todoboard.js';
 
 // A single todo item. Editable (with Editlabel), and draggable, onto any <Todolist /> 
 //
 // props:
 //  id: integer, unique on the page, for manipulating in
 //        top-level state
-//  content: string, the text content of the todo, passed down
-//            from top-level state
+//  itemObject: the item object that contains this Todo's 
+//      id, content, and isEdit status
 //  onChange: function ref, passed down to child Editlabel for
 //            controlling the input when editing content
 //  onDeleteClick: function ref, passed from parent Todolist,
@@ -29,7 +30,19 @@ const Itemmenu = (props) => {
 const Listitem = (props) => {
   // State hooks
   const [contextMenu, setContextMenu] = React.useState([0,0,false]);
-  const [isEdit, setIsEdit] = React.useState(true);
+
+  // Context consumers
+  const stateDispatch = React.useContext(StateDispatchContext);
+
+  // assigning props
+  const isEdit = props.isEdit;
+  const setIsEdit = (id, newState) => {
+    stateDispatch({
+      type: "SET_IS_EDIT",
+      itemId: props.id,
+      newState: !props.isEdit,
+    });
+  };
 
   const DeleteButton = () => {
     return (
@@ -68,9 +81,9 @@ const Listitem = (props) => {
         <Editlabel
           className={"list-item-objects list-item-label"}
           id={props.id}
-          content={props.content}
+          content={props.itemObject.content}
+          isEdit={props.itemObject.isEdit}
           onChange={props.onChange}
-          isEdit={isEdit}
           setIsEdit={setIsEdit}
         />
         <DeleteButton />
