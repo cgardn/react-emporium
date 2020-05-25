@@ -1,73 +1,51 @@
 import React from 'react';
 import Editlabel from './Editlabel';
 import Listitem from './Listitem';
-import {ListDispatchContext, ItemDispatchContext} from './Todoboard.js';
+import {StateDispatchContext} from './Todoboard.js';
 import { Droppable } from 'react-beautiful-dnd';
 
 const Todolist = (props) => {
-  const listDispatch = React.useContext(ListDispatchContext);
-  const itemDispatch = React.useContext(ItemDispatchContext);
+  const stateDispatch = React.useContext(StateDispatchContext);
   const [isTitleEdit, setTitleEdit] = React.useState(false);
 
-  // assigning props from props.list
-
   const changeItem = (id, newContent) => {
-    itemDispatch({
+    stateDispatch({
       type: 'UPDATE_TODO_CONTENT',
-      payload: {id: id, content: newContent}
+      itemId: id,
+      content: newContent,
     });
   };
 
   const removeItem = (id) => {
-    itemDispatch({
+    stateDispatch({
       type: 'REMOVE_TODO',
-      payload: {
-        listId: props.list.id,
-        itemId: id,
-      },
-    });
-    listDispatch({
-      type: 'REMOVE_TODO',
-      payload: {
-        listId: props.list.id,
-        itemId: id,
-      },
+      listId: props.id,
+      itemId: id,
     });
   };
 
   const handleAdditemClick = () => {
-    const newId = props.getId();
-    listDispatch({
-      type: 'INSERT_TODO',
-      payload: {
-        listId: props.list.id,
-        itemId: newId,
-        itemIndex: -1,
-      }
-    });
-    itemDispatch({
+    stateDispatch({
       type: 'ADD_TODO',
-      payload: {
-        id: newId,
-      }
+      listId: props.id,
     });
   };
 
   const changeListTitle = (id, content) => {
-    listDispatch({
+    stateDispatch({
       type: 'UPDATE_LIST_TITLE',
-      id: id,
-      payload: content
+      listId: props.id,
+      newTitle: content,
     });
   };
 
   const renderedItems = (
     props.list.items.map( (item, index) => (
       <Listitem
-        key={props.allItems[item].id}
-        id={props.allItems[item].id}
+        key={item}
+        id={item}
         index={index}
-        content={props.allItems[item].content}
+        content={props.todoState.items[item].content}
         onChange={changeItem}
         onDeleteClick={() => removeItem(item)}
       />
@@ -106,7 +84,7 @@ const Todolist = (props) => {
   const List = () => {
     
     return (
-      <Droppable droppableId={props.list.id}>
+      <Droppable droppableId={props.list.id + ''}>
         { (provided) => (
           <div 
             ref={provided.innerRef} 

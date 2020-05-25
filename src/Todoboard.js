@@ -3,6 +3,7 @@ import Todolist from './Todolist';
 import {DragDropContext} from 'react-beautiful-dnd';
 import './Todoboard.css';
 
+/*
 const listReducer = (state, action) => {
   switch(action.type) {
     case 'ADD_LIST':
@@ -79,7 +80,9 @@ const listReducer = (state, action) => {
       return state;
   }
 };
+*/
 
+/*
 const itemReducer = (state, action) => {
   let obj = null;
   switch(action.type) {
@@ -99,6 +102,7 @@ const itemReducer = (state, action) => {
       return state;
   }
 };
+*/
 
 const stateReducer = (state, action) => {
   const getId = () => {
@@ -108,7 +112,6 @@ const stateReducer = (state, action) => {
   };
 
   // item management
-  let obj = null;
   switch(action.type) {
     case 'ADD_TODO':
       // add a new todo to the item object and a particular
@@ -124,14 +127,14 @@ const stateReducer = (state, action) => {
         ...state,
         items: {
           ...state.items,
-          [action.payload.id]: newTodo
+          [newTodo.id]: newTodo
         },
         lists: state.lists.map( list => {
           if (list.id === action.listId) {
             return {
               ...list,
               // just add it to the end of the list for now
-              items: list.items.push(newTodo.id)
+              items: list.items.concat(newTodo.id)
             };
           } else {
             return list
@@ -184,6 +187,7 @@ const stateReducer = (state, action) => {
         id: getId(),
         items: [],
       };
+      console.log(state);
       return {...state, lists: [...state.lists, newList]};
     case 'REMOVE_LIST':
       // remove a particular list, put id in freeIds stack
@@ -210,7 +214,17 @@ const stateReducer = (state, action) => {
       // sourceIndex: index of position when drag began
       // destList: numerical ID of list where drag ended
       // destIndex: index of position when drag ended
-      let movedItem = state.lists.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
+      //let movedItem = state.lists.filter( list => list.id === action.payload.sourceList)[0].items.splice(action.payload.sourceIndex,1);
+      console.log(action.payload.sourceList);
+      console.log(state.lists.find(list => list.id === action.payload.sourceList));
+      let fromList = state.lists.find(
+        list => list.id === action.payload.sourceList
+      );
+      let movedItem = state.lists.find(
+        list => list.id === action.payload.sourceList
+      ).items.splice(
+        action.payload.sourceIndex, 1
+      );
       return {...state, lists: state.lists.map( list => {
         if (list.id === action.payload.destList) {
           return {
@@ -230,6 +244,7 @@ const stateReducer = (state, action) => {
 
 export const ListDispatchContext = React.createContext(null);
 export const ItemDispatchContext = React.createContext(null);
+export const StateDispatchContext = React.createContext(null);
 
 // Data architecture:
 //  Two reducers:
@@ -251,6 +266,7 @@ export const ItemDispatchContext = React.createContext(null);
 //    get the lists and their items, pulling item content out
 //    of the item reducer along the way.
 
+/*
 const initialListState = [
   {id: 'm', title: "Monday", items: []},
   {id: 't', title: "Tuesday", items: []},
@@ -263,6 +279,7 @@ const initialListState = [
 
 const initialItemState = {};
 const initialIdState = {freeIds: [], nextId: 0}
+*/
 
 // new unified state object
 const initialState = {
@@ -281,8 +298,7 @@ const initialState = {
 }
 
 const Todoboard = (props) => {
-  const [lists, listDispatch] = React.useReducer(listReducer, initialListState);
-  const [allItems, itemDispatch] = React.useReducer(itemReducer, initialItemState);
+  const [todoState, stateDispatch] = React.useReducer(stateReducer, initialState);
 
   const [nextItemId, setNextItemId] = React.useState(props.startId || 0);
 
@@ -291,7 +307,7 @@ const Todoboard = (props) => {
     setNextItemId(nextItemId + 1);
     return outId;
   };
-  
+  /*
   const newList = () => {
     const outList = {
       title: "New List",
@@ -300,37 +316,33 @@ const Todoboard = (props) => {
     };
     return outList;
   };
+  */
 
   const addList = () => {
-    const newList = newList();
-    listDispatch({
+    stateDispatch({
       type: 'ADD_LIST',
-      listId: newList.id,
-      payload: newList,
     });
   };
 
   const removeList = (listId) => {
     // remove a lists items first to prevent orphaned data
     // - remember items on lists are just id's!
-    lists.map( list => {
+    // - this is not optimal, the reducer called .map()
+    //   on the list once for each item, but good enough
+    //   for now
+    todoState.lists.map( list => {
       if (list.id === listId) {
         list.items.forEach( item => {
-          itemDispatch({
+          stateDispatch({
             type: 'REMOVE_TODO',
-            payload: {
-              itemId: item,
-            },
+            itemId: item,
           });
         });
       }
       return list
     });
-    listDispatch({type: 'REMOVE_LIST', listId: listId});
-  };
-
-  const getListSize = (listId) => {
-    return lists[listId].items.length;
+    //listDispatch({type: 'REMOVE_LIST', listId: listId});
+    stateDispatch({type: 'REMOVE_LIST', listId: listId});
   };
 
   const AddListButton = () => {
@@ -354,31 +366,33 @@ const Todoboard = (props) => {
 
   const onDragEnd = ({source, destination}) => {
     if (source === null || destination === null) return;
-    listDispatch({
+    console.log(source, destination);
+    stateDispatch({
       type: 'MOVE_TODO',
       payload: {
         sourceList: source.droppableId,
         sourceIndex: source.index,
         destList: destination.droppableId,
         destIndex: destination.index,
-      }
+      },
     });
   };
 
   return (
     <>
     <DragDropContext onDragEnd={onDragEnd}>
-    <ListDispatchContext.Provider value={listDispatch}>
-    <ItemDispatchContext.Provider value={itemDispatch}>
+    <StateDispatchContext.Provider value={stateDispatch}>
     <ListContainer thisClass="calendar" key="calendarcontainer">
-        {lists.map( (list, index) => (
+        {todoState.lists.map( (list, index) => (
           (index <= 6) &&
               <>
               <Todolist
                 thisClass={"calendar"}
+                todoState={todoState}
                 list={list}
+                index={index}
+                id={list.id}
                 key={list.id}
-                allItems={allItems}
                 getId={getId}
                 canDelete={false}
                 canEditTitle={false}
@@ -389,22 +403,22 @@ const Todoboard = (props) => {
     </ListContainer>
     <hr style={{width: "90vw"}}/>
     <ListContainer thisClass="todo" key="todolistcontainer">
-        {lists.length > 0 &&
+        {todoState.lists.length > 0 &&
           <>
-          {lists.map( (list, index) => (
+          {todoState.lists.map( (list, index) => (
             (index > 6) && 
             <>
              <Todolist
                 thisClass={"todo"}
-                title={list.title}
-                key={list.id}
+                todoState={todoState}
+                list={list}
+                index={index}
                 id={list.id}
-                ownedItems={list.items}
-                allItems={allItems}
+                key={list.id}
                 getId={getId} 
                 canDelete={true}
                 canEditTitle={true}
-              onDeleteClick={() => removeList(list.id)}
+                onDeleteClick={() => removeList(list.id)}
              />
             </>
           ))}
@@ -412,8 +426,7 @@ const Todoboard = (props) => {
         }
         <AddListButton key="addlistbutton" />
     </ListContainer>
-    </ItemDispatchContext.Provider>
-    </ListDispatchContext.Provider>
+    </StateDispatchContext.Provider>
     </DragDropContext>
     </>
   )
