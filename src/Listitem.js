@@ -35,7 +35,6 @@ const Listitem = (props) => {
   const stateDispatch = React.useContext(StateDispatchContext);
 
   // assigning props
-  const isEdit = props.itemObject.isEdit;
   const setIsEdit = (id, newState) => {
     stateDispatch({
       type: "SET_IS_EDIT",
