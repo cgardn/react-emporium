@@ -17,7 +17,6 @@ const stateReducer = (state, action) => {
       //    list, with new ID from getId()
       // listId: id of the list where the new item will be
       //          appended
-      console.log("adding todo");
       const newTodo = {
         id: getId(),
         content: "Click to edit",
@@ -87,7 +86,6 @@ const stateReducer = (state, action) => {
         id: getId().toString(),
         items: [],
       };
-      console.log(state);
       return {...state, lists: [...state.lists, newList]};
     case 'REMOVE_LIST':
       // remove a particular list, put id in freeIds stack
@@ -174,31 +172,15 @@ export const StateDispatchContext = React.createContext(null);
 //    get the lists and their items, pulling item content out
 //    of the item reducer along the way.
 
-/*
-const initialListState = [
-  {id: 'm', title: "Monday", items: []},
-  {id: 't', title: "Tuesday", items: []},
-  {id: 'w', title: "Wednesday", items: []},
-  {id: 'r', title: "Thursday", items: []},
-  {id: 'f', title: "Friday", items: []},
-  {id: 's', title: "Saturday", items: []},
-  {id: 'u', title: "Sunday", items: []},
-];
-
-const initialItemState = {};
-const initialIdState = {freeIds: [], nextId: 0}
-*/
-
-// new unified state object
 const initialState = {
   lists: [
-    {id:'m', title: "Monday", items: [], isTitleEdit: false},
-    {id:'t', title: "Tuesday", items: [], isTitleEdit: false},
-    {id:'w', title: "Wednesday", items: [], isTitleEdit: false},
-    {id:'r', title: "Thursday", items: [], isTitleEdit: false},
-    {id:'f', title: "Friday", items: [], isTitleEdit: false},
-    {id:'s', title: "Saturday", items: [], isTitleEdit: false},
-    {id:'u', title: "Sunday", items: [], isTitleEdit: false},
+    {id:'m',title:"Monday", items: [], isTitleEdit:false},
+    {id:'t',title:"Tuesday", items: [], isTitleEdit:false},
+    {id:'w',title:"Wednesday", items: [], isTitleEdit:false},
+    {id:'r',title:"Thursday", items: [], isTitleEdit:false},
+    {id:'f',title:"Friday", items: [], isTitleEdit:false},
+    {id:'s',title:"Saturday", items: [], isTitleEdit:false},
+    {id:'u',title:"Sunday", items: [], isTitleEdit:false},
   ],
   items: {},
   freeIds: [],
@@ -207,24 +189,6 @@ const initialState = {
 
 const Todoboard = (props) => {
   const [todoState, stateDispatch] = React.useReducer(stateReducer, initialState);
-
-  const [nextItemId, setNextItemId] = React.useState(props.startId || 0);
-
-  const getId = () => {
-    const outId = nextItemId;
-    setNextItemId(nextItemId + 1);
-    return outId;
-  };
-  /*
-  const newList = () => {
-    const outList = {
-      title: "New List",
-      id: getId(),
-      items: [],
-    };
-    return outList;
-  };
-  */
 
   const addList = () => {
     stateDispatch({
@@ -235,7 +199,7 @@ const Todoboard = (props) => {
   const removeList = (listId) => {
     // remove a lists items first to prevent orphaned data
     // - remember items on lists are just id's!
-    // - this is not optimal, the reducer called .map()
+    // - this is not optimal, the reducer calls .map()
     //   on the list once for each item, but good enough
     //   for now
     todoState.lists.map( list => {
@@ -273,7 +237,6 @@ const Todoboard = (props) => {
 
   const onDragEnd = ({source, destination}) => {
     if (source === null || destination === null) return;
-    console.log(source, destination);
     stateDispatch({
       type: 'MOVE_TODO',
       payload: {
@@ -300,7 +263,6 @@ const Todoboard = (props) => {
                 index={index}
                 id={list.id + ''}
                 key={list.id}
-                getId={getId}
                 canDelete={false}
                 canEditTitle={false}
                 onDeleteClick={() => removeList(list.id)}
@@ -322,7 +284,6 @@ const Todoboard = (props) => {
                 index={index}
                 id={list.id}
                 key={list.id}
-                getId={getId} 
                 canDelete={true}
                 canEditTitle={true}
                 onDeleteClick={() => removeList(list.id)}
