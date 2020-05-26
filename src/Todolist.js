@@ -1,7 +1,7 @@
 import React from 'react';
 import Editlabel from './Editlabel';
 import Listitem from './Listitem';
-import {StateDispatchContext} from './Todoboard.js';
+import { StateDispatchContext } from './stateManager.js';
 import { Droppable } from 'react-beautiful-dnd';
 
 const Todolist = (props) => {
@@ -24,6 +24,7 @@ const Todolist = (props) => {
   };
 
   const handleAdditemClick = () => {
+    console.log("handleAddItemClick");
     stateDispatch({
       type: 'ADD_TODO',
       listId: props.id,

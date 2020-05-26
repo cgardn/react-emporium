@@ -26,21 +26,21 @@ const Editlabel = (props) => {
       ? <form 
           onSubmit={event => {
             event.preventDefault()
-            props.setIsEdit(false)}
-          }
+            props.setIsEdit()
+          }}
         >
           <input
             className={props.className}
             value={props.content}
             ref={callbackRef}
             onChange={event => props.onChange(props.id, event.target.value)}
-            onBlur={event => props.setIsEdit(false)}
+            onBlur={event => props.setIsEdit()}
           >
           </input>
         </form>
       : <span 
           className={props.className}
-          onClick={event => props.setIsEdit(true)}
+          onClick={event => props.setIsEdit()}
         >{props.content}</span>
     }
     </>

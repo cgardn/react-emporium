@@ -1,7 +1,7 @@
 import React from 'react'
 import Editlabel from './Editlabel';
 import {Draggable} from 'react-beautiful-dnd';
-import {StateDispatchContext} from './Todoboard.js';
+import {StateDispatchContext} from './stateManager.js';
 
 // A single todo item. Editable (with Editlabel), and draggable, onto any <Todolist /> 
 //

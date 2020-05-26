@@ -1,17 +1,27 @@
 import React from 'react';
 import Todoboard from './Todoboard';
-
+import {initialState, stateReducer, StateDispatchContext} from './stateManager.js';
 import './App.css';
 
-class App extends React.Component {
+const App = () => {
 
-  render() {
+  const [todoState, stateDispatch] = React.useReducer(stateReducer, initialState);
+
+  const Container = (props) => {
     return (
+      <StateDispatchContext.Provider value={stateDispatch}>
         <div className="app">
-          <Todoboard />
+          {props.children}
         </div>
+      </StateDispatchContext.Provider>
     );
-  }
+  };
+
+  return (
+    <Container>
+      <Todoboard todoState={todoState} />
+    </Container>
+  );
 }
 
 export default App;
