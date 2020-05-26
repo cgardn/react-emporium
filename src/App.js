@@ -5,7 +5,12 @@ import './App.css';
 
 const App = () => {
 
-  const [todoState, stateDispatch] = React.useReducer(stateReducer, initialState);
+  // reducer hook for managing state
+  const [todoState, stateDispatch] = React.useReducer(stateReducer, JSON.parse(localStorage.getItem('listreactor-state')) || initialState);
+
+  React.useEffect( () => {
+    localStorage.setItem('listreactor-state', JSON.stringify(todoState));
+  }, [todoState]);
 
   const Container = (props) => {
     return (
