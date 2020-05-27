@@ -24,7 +24,6 @@ const Todolist = (props) => {
   };
 
   const handleAdditemClick = () => {
-    console.log("handleAddItemClick");
     stateDispatch({
       type: 'ADD_TODO',
       listId: props.id,

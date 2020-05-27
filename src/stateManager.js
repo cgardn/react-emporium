@@ -22,9 +22,7 @@ import React from 'react';
 
 
 export const stateReducer = (state, action) => {
-  console.log("stateReducer", action);
   const getId = () => {
-    console.log("getId", action, state.nextId, state);
     return (state.freeIds.length > 0)
       ? state.freeIds.pop()
       : state.nextId++
