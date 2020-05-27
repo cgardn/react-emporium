@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/list-reactor/static/css/main.e70d5a91.chunk.css",
-    "main.js": "/list-reactor/static/js/main.331da094.chunk.js",
-    "main.js.map": "/list-reactor/static/js/main.331da094.chunk.js.map",
+    "main.js": "/list-reactor/static/js/main.25d44266.chunk.js",
+    "main.js.map": "/list-reactor/static/js/main.25d44266.chunk.js.map",
     "runtime-main.js": "/list-reactor/static/js/runtime-main.5d8c9ea0.js",
     "runtime-main.js.map": "/list-reactor/static/js/runtime-main.5d8c9ea0.js.map",
     "static/js/2.24ff370b.chunk.js": "/list-reactor/static/js/2.24ff370b.chunk.js",
     "static/js/2.24ff370b.chunk.js.map": "/list-reactor/static/js/2.24ff370b.chunk.js.map",
     "index.html": "/list-reactor/index.html",
-    "precache-manifest.13704712a96fd5a4dc65e391f0440d65.js": "/list-reactor/precache-manifest.13704712a96fd5a4dc65e391f0440d65.js",
+    "precache-manifest.0d7d0d63f18792b7107a1fdbc2f44ec6.js": "/list-reactor/precache-manifest.0d7d0d63f18792b7107a1fdbc2f44ec6.js",
     "service-worker.js": "/list-reactor/service-worker.js",
     "static/css/main.e70d5a91.chunk.css.map": "/list-reactor/static/css/main.e70d5a91.chunk.css.map",
     "static/js/2.24ff370b.chunk.js.LICENSE.txt": "/list-reactor/static/js/2.24ff370b.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.5d8c9ea0.js",
     "static/js/2.24ff370b.chunk.js",
     "static/css/main.e70d5a91.chunk.css",
-    "static/js/main.331da094.chunk.js"
+    "static/js/main.25d44266.chunk.js"
   ]
 }
