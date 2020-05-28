@@ -1,6 +1,7 @@
 import React from 'react';
 import Todoboard from './Todoboard';
 import {initialState, stateReducer, StateDispatchContext} from './stateManager.js';
+import Navbar from './Navbar';
 import './App.css';
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
   const Container = (props) => {
     return (
       <StateDispatchContext.Provider value={stateDispatch}>
+        <Navbar todoState={todoState} />
         <div className="app">
           {props.children}
         </div>
