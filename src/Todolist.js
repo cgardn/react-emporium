@@ -34,7 +34,7 @@ const Todolist = (props) => {
     stateDispatch({
       type: 'SET_LIST_TITLE_IS_EDIT',
       listId: props.id,
-      newState: newContent,
+      newState: !props.list.isTitleEdit,
     });
   };
 
