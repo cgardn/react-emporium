@@ -163,10 +163,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
+  overflow-wrap: break-word;
   margin-bottom: 8px;
   padding: 0px 10px;
-
   border-bottom: thin solid #bbb;
   border-radius: 3px;
 
