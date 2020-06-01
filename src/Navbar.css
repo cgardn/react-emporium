@@ -45,7 +45,6 @@
   flex-direction: column;
   flex: 0 0 auto;
   align-items: center;
-  z-index: 3;
 }
 
 .settings-menu-item {
@@ -61,9 +60,23 @@
 
 .settings-menu-overlay {
   position: absolute;
-  z-index: 2;
   height: 100vh;
   width: 99vw;
   flex-basis: 100vw;
   flex-shrink: 0;
+}
+
+/* export box */
+.export-display {
+  /* align to center */
+  position: fixed;
+  left: 30vw;
+  top: 25vh;
+  height: 150px;
+  width: 40vw;
+  margin: 2px;
+  padding: 2px;
+}
+
+.export-box-textarea {
 }

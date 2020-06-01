@@ -3,8 +3,10 @@ import './Navbar.css';
 
 const SettingsMenu = (props) => {
 
-  const showExportBox = () => {
-    console.log(JSON.stringify(props.todoState));
+  const [isExportShowing, setIsExportShowing] = React.useState(false);
+
+  const showExportBox = (isShowing) => {
+    return "";
   };
 
   const showImportBox = () => {
@@ -26,13 +28,16 @@ const SettingsMenu = (props) => {
     >
       <li 
         className="settings-menu-item"
-        onClick={event => showExportBox()}
+        onClick={event => setIsExportShowing(true)}
       >Export</li>
       <li 
         className="settings-menu-item"
         onClick={event => showImportBox()}
       >Import</li>
     </ul>
+      {isExportShowing &&
+        <ExportDisplay content={props.todoState}/>
+      }
     </div>
   );
 }
@@ -40,8 +45,11 @@ const SettingsMenu = (props) => {
 const ExportDisplay = (props) => {
   // box showing JSON.stringify(props.todoState)
   return (
-    <textarea className="export-display">
-      {JSON.stringify(props.todoState)}
+    <textarea 
+      className="export-display"
+      onClick={event => event.stopPropagation()}
+    >
+      {JSON.stringify(props.content)}
     </textarea>
   );
 }
@@ -66,6 +74,7 @@ const Navbar = (props) => {
           setSettingsMenuProps={setSettingsMenuProps}
         />
       }
+
     </div>
   );
 }
