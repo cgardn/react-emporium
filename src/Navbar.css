@@ -1,3 +1,7 @@
+.root {
+  box-sizing: border-box;
+}
+
 .navbar {
   width: 100%;
   height: 40px;
@@ -41,10 +45,25 @@
   flex-direction: column;
   flex: 0 0 auto;
   align-items: center;
+  z-index: 3;
 }
 
 .settings-menu-item {
   padding: 5px;
   margin: 3px;
   border: thin solid grey;
+}
+
+.settings-menu-item:hover {
+  background: lightgray;
+  cursor: pointer;
+}
+
+.settings-menu-overlay {
+  position: absolute;
+  z-index: 2;
+  height: 100vh;
+  width: 99vw;
+  flex-basis: 100vw;
+  flex-shrink: 0;
 }

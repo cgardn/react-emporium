@@ -3,21 +3,37 @@ import './Navbar.css';
 
 const SettingsMenu = (props) => {
 
-  const doExport = () => {
+  const showExportBox = () => {
     console.log(JSON.stringify(props.todoState));
   };
 
+  const showImportBox = () => {
+    console.log("display modal import box");
+  };
+
   return (
+    <div
+      className="settings-menu-overlay"
+      onClick={event => {
+        console.log("Clicked outside menu")
+        props.setSettingsMenuProps([0,0,false])
+      }}
+    >
     <ul
       className="settings-menu"
+      onClick={event => event.stopPropagation()}
       style={{ top: props.posY, left: props.posX }}
     >
       <li 
         className="settings-menu-item"
-        onClick={event => doExport()}
+        onClick={event => showExportBox()}
       >Export</li>
-      <li className="settings-menu-item">Import</li>
+      <li 
+        className="settings-menu-item"
+        onClick={event => showImportBox()}
+      >Import</li>
     </ul>
+    </div>
   );
 }
 
@@ -47,6 +63,7 @@ const Navbar = (props) => {
           posX={settingsMenuProps[0]-90}
           posY={settingsMenuProps[1]+10}
           todoState={props.todoState}
+          setSettingsMenuProps={setSettingsMenuProps}
         />
       }
     </div>
