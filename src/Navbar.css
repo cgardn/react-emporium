@@ -70,12 +70,12 @@
 .export-display {
   /* align to center */
   position: fixed;
-  left: 30vw;
+  left: 29vw;
   top: 25vh;
   height: 250px;
   width: 40vw;
   margin: auto;
-  padding: 2px;
+  padding: 0 2px;
   background: var(--list-bg-color);
   display: flex;
   flex-direction: column;

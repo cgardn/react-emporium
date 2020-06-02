@@ -6,6 +6,7 @@
   --list-border-radius: 7px;
   --item-border-bottom: thin solid #bbb;
   --item-border-radius: 3px;
+  --button-hover-color: #bbb;
 }
   
 @media screen and (max-width: 736px) {
@@ -144,7 +145,7 @@
 }
 
 .list-delete-button:hover {
-  background-color: #bbb;
+  background-color: var(--button-hover-color);
 }
 
 
@@ -190,7 +191,14 @@
   padding: 10px 10px 10px 7px;
   border-radius: 5px;
   border: thin solid #bbb;
+  background: var(--list-bg-color);
 }
+
+.addListButton:hover {
+  cursor: pointer;
+  background: var(--button-hover-color);
+}
+
 
 .item-menu {
   position: fixed;
@@ -214,7 +222,7 @@
 }
 
 .addItemButton:hover {
-  background-color: #999;
+  background-color: var(--button-hover-color);
 }
 
 .deleteItemButton {
@@ -225,5 +233,5 @@
 }
 
 .deleteItemButton:hover {
-  background-color: #999;
+  background-color: var(--button-hover-color);
 }
