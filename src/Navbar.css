@@ -4,6 +4,20 @@
   --navbar-bg-color: #6aa6ff;
 }
 
+@media screen and (max-width: 736px) {
+  .navbar-title {
+    margin-right: 10%;
+    font-size: 1em;
+  }
+}
+
+@media screen and (min-width: 736px) {
+  .navbar-title {
+    margin-right: 40%;
+    font-size: 2em;
+  }
+}
+
 .root {
   box-sizing: border-box;
 }
@@ -14,11 +28,6 @@
   background-color: var(--navbar-bg-color);
   display: flex;
   justify-content: center;
-}
-
-.navbar-title {
-  margin-right: 40%;
-  font-size: 2em;
 }
 
 .navbar-settings {
