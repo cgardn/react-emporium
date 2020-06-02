@@ -148,7 +148,6 @@
   background-color: var(--button-hover-color);
 }
 
-
 .list-content {
   padding: 5px 0;
   height: 100%;
@@ -223,6 +222,7 @@
 
 .addItemButton:hover {
   background-color: var(--button-hover-color);
+  cursor: pointer;
 }
 
 .deleteItemButton {
