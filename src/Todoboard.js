@@ -35,10 +35,10 @@ const Todoboard = (props) => {
 
   const AddListButton = () => {
     return (
-      <button
+      <span
         className="addListButton"
         onClick={addList}
-      >{"+ Add list"}</button>
+      >{"+ Add list"}</span>
     );
   };
 
