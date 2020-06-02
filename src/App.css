@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   overflow: auto;
-  height: 100vh;
+  height: calc(100vh - var(--navbar-height));
   background-size: cover;
   background-color: lightblue;
 }
