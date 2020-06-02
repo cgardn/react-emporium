@@ -43,16 +43,32 @@ const SettingsMenu = (props) => {
 }
 
 const ExportDisplay = (props) => {
-  // box showing JSON.stringify(props.todoState)
   return (
-    <textarea 
+    <div 
       className="export-display"
-      onClick={event => event.stopPropagation()}
     >
-      {JSON.stringify(props.content)}
-    </textarea>
+      <textarea 
+        className="export-content"
+        onClick={event => event.stopPropagation()}
+      >
+        {btoa(JSON.stringify(props.content))}
+      </textarea>
+      <div className="export-buttons">
+        <span>Close</span>
+      </div>
+    </div>
   );
 }
+
+const ImportDisplay = () => {
+  return (
+    <textarea
+      className="import-display"
+      onClick={event => event.stopPropagation()}
+    ></textarea>
+  );
+}
+      
 
 const Navbar = (props) => {
   const [settingsMenuProps, setSettingsMenuProps] = React.useState([0,0,false]);
