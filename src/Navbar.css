@@ -72,11 +72,37 @@
   position: fixed;
   left: 30vw;
   top: 25vh;
-  height: 150px;
+  height: 250px;
   width: 40vw;
-  margin: 2px;
+  margin: auto;
   padding: 2px;
+  background: var(--list-bg-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  border: var(--list-border);
+  border-radius: var(--list-border-radius);
 }
 
-.export-box-textarea {
+.export-content {
+  margin: auto;
+  width: 99%;
+  height: 80%;
+  resize: none;
 }
+
+.export-buttons {
+  border: var(--list-border);
+  border-radius: var(--item-border-radius);
+  background: var(--list-bg-color);
+  padding: 3px;
+
+  margin: auto;
+}
+
+.export-buttons:hover {
+  cursor: pointer;
+  background: #999;
+}
+
