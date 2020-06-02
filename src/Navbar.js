@@ -131,12 +131,12 @@ const Navbar = (props) => {
       >List Reactor</span>
       <span
         className="navbar-settings navbar-item"
-        onClick={event => setSettingsMenuProps([event.pageX, event.pageY, !settingsMenuProps[2]])}
+        onClick={event => setSettingsMenuProps([event.target.offsetLeft, event.target.offsetTop, !settingsMenuProps[2]])}
       >Settings</span>
       {settingsMenuProps[2] &&
         <SettingsMenu
-          posX={settingsMenuProps[0]-90}
-          posY={settingsMenuProps[1]+10}
+          posX={settingsMenuProps[0]-10}
+          posY={settingsMenuProps[1]+35}
           todoState={props.todoState}
           setSettingsMenuProps={setSettingsMenuProps}
         />
