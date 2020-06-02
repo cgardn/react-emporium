@@ -4,6 +4,7 @@ import './Navbar.css';
 const SettingsMenu = (props) => {
 
   const [isExportShowing, setIsExportShowing] = React.useState(false);
+  const [isImportShowing, setIsImportShowing] = React.useState(false);
 
   const showExportBox = (isShowing) => {
     return "";
@@ -28,15 +29,24 @@ const SettingsMenu = (props) => {
     >
       <li 
         className="settings-menu-item"
-        onClick={event => setIsExportShowing(true)}
+        onClick={event => {
+          setIsExportShowing(true)
+          setIsImportShowing(false)
+        }}
       >Export</li>
       <li 
         className="settings-menu-item"
-        onClick={event => showImportBox()}
+        onClick={event => {
+          setIsExportShowing(false)
+          setIsImportShowing(true)
+        }}
       >Import</li>
     </ul>
       {isExportShowing &&
         <ExportDisplay content={props.todoState}/>
+      }
+      {isImportShowing &&
+        <ImportDisplay/>
       }
     </div>
   );
@@ -62,10 +72,19 @@ const ExportDisplay = (props) => {
 
 const ImportDisplay = () => {
   return (
-    <textarea
-      className="import-display"
-      onClick={event => event.stopPropagation()}
-    ></textarea>
+    <div 
+      className="export-display"
+    >
+      <textarea 
+        className="export-content"
+        onClick={event => event.stopPropagation()}
+      >
+      </textarea>
+      <div style={{margin: "auto"}}>
+        <span className="export-buttons">Import</span>
+        <span className="export-buttons">Cancel</span>
+      </div>
+    </div>
   );
 }
       
