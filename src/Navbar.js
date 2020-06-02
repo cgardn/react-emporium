@@ -1,17 +1,20 @@
 import React from 'react';
 import './Navbar.css';
+import {StateDispatchContext} from './stateManager.js';
 
 const SettingsMenu = (props) => {
+
+  const stateDispatch = React.useContext(StateDispatchContext);
 
   const [isExportShowing, setIsExportShowing] = React.useState(false);
   const [isImportShowing, setIsImportShowing] = React.useState(false);
 
-  const showExportBox = (isShowing) => {
-    return "";
-  };
-
-  const showImportBox = () => {
-    console.log("display modal import box");
+  const clearAll = () => {
+    if (window.confirm("Clear all? This will erase the entire board!!")) {
+      stateDispatch({
+        type: 'CLEAR_STATE',
+      });
+    }
   };
 
   return (
@@ -41,12 +44,17 @@ const SettingsMenu = (props) => {
           setIsImportShowing(true)
         }}
       >Import</li>
+      <li
+        className="settings-menu-item"
+        onClick={clearAll}
+      >Clear All</li>
+
     </ul>
       {isExportShowing &&
         <ExportDisplay content={props.todoState}/>
       }
       {isImportShowing &&
-        <ImportDisplay/>
+        <ImportDisplay setIsImportShowing={setIsImportShowing}/>
       }
     </div>
   );
@@ -60,9 +68,8 @@ const ExportDisplay = (props) => {
       <textarea 
         className="export-content"
         onClick={event => event.stopPropagation()}
-      >
-        {btoa(JSON.stringify(props.content))}
-      </textarea>
+        defaultValue={btoa(JSON.stringify(props.content))}
+      ></textarea>
       <div className="export-buttons">
         <span>Close</span>
       </div>
@@ -70,7 +77,24 @@ const ExportDisplay = (props) => {
   );
 }
 
-const ImportDisplay = () => {
+const ImportDisplay = (props) => {
+  const stateDispatch = React.useContext(StateDispatchContext);
+  const [importData, setImportData] = React.useState("");
+
+  const importClick = (event) => {
+    if (window.confirm("Import? This will erase all your current data!!")) {
+      stateDispatch({
+        type: 'LOAD_NEW_STATE',
+        newState: JSON.parse(atob(importData)),
+      });
+      props.setIsImportShowing(false);
+    }
+  };
+
+  const cancelClick = () => {
+    props.setIsImportShowing(false);
+  };
+
   return (
     <div 
       className="export-display"
@@ -78,11 +102,19 @@ const ImportDisplay = () => {
       <textarea 
         className="export-content"
         onClick={event => event.stopPropagation()}
+        value={importData}
+        onChange={event => setImportData(event.target.value)}
       >
       </textarea>
-      <div style={{margin: "auto"}}>
-        <span className="export-buttons">Import</span>
-        <span className="export-buttons">Cancel</span>
+      <div style={{margin: "auto"}} onClick={event => event.stopPropagation()}>
+        <span 
+          className="export-buttons"
+          onClick={cancelClick}
+        >Cancel</span>
+        <span 
+          className="export-buttons"
+          onClick={event => importClick(event)}
+        >Import</span>
       </div>
     </div>
   );
