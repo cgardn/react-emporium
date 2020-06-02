@@ -2,6 +2,10 @@
 :root {
   --list-bg-color: #ddd;
   --list-content-color: #f9f9f9;
+  --list-border: thin solid #bbb;
+  --list-border-radius: 7px;
+  --item-border-bottom: thin solid #bbb;
+  --item-border-radius: 3px;
 }
   
 @media screen and (max-width: 736px) {
@@ -71,8 +75,8 @@
   justify-content: flex-start;
   flex-direction: column;
   flex: 0 0 auto;
-  border: thin solid #bbb;
-  border-radius: 7px;
+  border: var(--list-border);
+  border-radius: var(--list-border-radius);
   background-color: var(--list-bg-color);
   height: 100%;
 }
@@ -166,22 +170,12 @@
   overflow-wrap: break-word;
   margin-bottom: 8px;
   padding: 0px 10px;
-  border-bottom: thin solid #bbb;
-  border-radius: 3px;
+  border-bottom: var(--item-border-bottom);
+  border-radius: var(--item-border-radius);
 
   background-color: var(--list-bg-color);
   font-family: "Verdana", "Arial", sans-serif;
   font-size: 0.8rem;
-}
-
-.list-item-placeholder {
-  height: 36px;
-  align-items: center;
-
-  margin-bottom: 8px;
-  padding: 0px 10px;
-
-  border-radius: 3px;
 }
 
 .list-item:hover {
