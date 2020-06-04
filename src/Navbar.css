@@ -59,6 +59,7 @@
   flex-direction: column;
   flex: 0 0 auto;
   align-items: center;
+  z-index: 6;
 }
 
 .settings-menu-item {
@@ -78,6 +79,7 @@
   width: 99vw;
   flex-basis: 100vw;
   flex-shrink: 0;
+  z-index: 5;
 }
 
 /* export box */
