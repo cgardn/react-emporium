@@ -72,7 +72,7 @@ const Todoboard = (props) => {
         index={index}
         id={list.id + ''}
         key={list.id}
-        canDelete={false}
+        canDelete={index <= 6 ? false : true}
         canEditTitle={false}
         onDeleteClick={() => removeList(list.id)}
       />
