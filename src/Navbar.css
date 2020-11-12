@@ -1,15 +1,33 @@
-.navbar {
-  width: 100%;
-  height: 40px;
-  background-color: #6aa6ff;
-  display: flex;
-  justify-content: center;
+/* navbar height */
+:root {
+  --navbar-height: 40px;
+  --navbar-bg-color: #6aa6ff;
 }
 
-.navbar-title {
-  margin-right: 40%;
-  font-size: 2em;
+@media screen and (max-width: 736px) {
+  .navbar-title {
+    margin-right: 10%;
+    font-size: 1em;
+  }
+}
 
+@media screen and (min-width: 736px) {
+  .navbar-title {
+    margin-right: 40%;
+    font-size: 2em;
+  }
+}
+
+.root {
+  box-sizing: border-box;
+}
+
+.navbar {
+  width: 100%;
+  height: var(--navbar-height);
+  background-color: var(--navbar-bg-color);
+  display: flex;
+  justify-content: center;
 }
 
 .navbar-settings {
@@ -41,6 +59,7 @@
   flex-direction: column;
   flex: 0 0 auto;
   align-items: center;
+  z-index: 6;
 }
 
 .settings-menu-item {
@@ -48,3 +67,57 @@
   margin: 3px;
   border: thin solid grey;
 }
+
+.settings-menu-item:hover {
+  background: lightgray;
+  cursor: pointer;
+}
+
+.settings-menu-overlay {
+  position: absolute;
+  height: 100vh;
+  width: 99vw;
+  flex-basis: 100vw;
+  flex-shrink: 0;
+  z-index: 5;
+}
+
+/* export box */
+.export-display {
+  /* align to center */
+  position: fixed;
+  left: 29vw;
+  top: 25vh;
+  height: 250px;
+  width: 40vw;
+  margin: auto;
+  padding: 0 2px;
+  background: var(--list-bg-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  border: var(--list-border);
+  border-radius: var(--list-border-radius);
+}
+
+.export-content {
+  margin: auto;
+  width: 99%;
+  height: 80%;
+  resize: none;
+}
+
+.export-buttons {
+  border: var(--list-border);
+  border-radius: var(--item-border-radius);
+  background: var(--list-bg-color);
+  padding: 3px;
+  margin: auto;
+}
+
+.export-buttons:hover {
+  cursor: pointer;
+  background: #999;
+}
+

@@ -35,20 +35,18 @@ const Todoboard = (props) => {
 
   const AddListButton = () => {
     return (
-      <button
+      <span
         className="addListButton"
         onClick={addList}
-      >{"+ Add list"}</button>
+      >{"+ Add list"}</span>
     );
   };
 
   const ListContainer = (props) => {
     return (
-      <div className={props.thisClass}>
         <div className={`${props.thisClass}-container`}>
           {props.children}
         </div>
-      </div>
     );
   };
 
@@ -65,53 +63,36 @@ const Todoboard = (props) => {
     });
   };
 
+  const renderedItems = (
+    props.todoState.lists.map( (list, index) => (
+      <Todolist
+        thisClass={index <= 6 ? "calendar" : "todo"}
+        todoState={props.todoState}
+        list={list}
+        index={index}
+        id={list.id + ''}
+        key={list.id}
+        canDelete={index <= 6 ? false : true}
+        canEditTitle={false}
+        onDeleteClick={() => removeList(list.id)}
+      />
+    ))
+  );
+
   return (
-    <>
     <DragDropContext onDragEnd={onDragEnd}>
-    <ListContainer thisClass="calendar" key="calendarcontainer">
-        {props.todoState.lists.map( (list, index) => (
-          (index <= 6) &&
-              <>
-              <Todolist
-                thisClass={"calendar"}
-                todoState={props.todoState}
-                list={list}
-                index={index}
-                id={list.id + ''}
-                key={list.id}
-                canDelete={false}
-                canEditTitle={false}
-                onDeleteClick={() => removeList(list.id)}
-              />
-              </>
-        ))}
-    </ListContainer>
-    <hr style={{width: "90vw"}}/>
-    <ListContainer thisClass="todo" key="todolistcontainer">
-        {props.todoState.lists.length > 0 &&
-          <>
-          {props.todoState.lists.map( (list, index) => (
-            (index > 6) && 
-            <>
-             <Todolist
-                thisClass={"todo"}
-                todoState={props.todoState}
-                list={list}
-                index={index}
-                id={list.id}
-                key={list.id}
-                canDelete={true}
-                canEditTitle={true}
-                onDeleteClick={() => removeList(list.id)}
-             />
-            </>
-          ))}
-          </>
-        }
+      <ListContainer 
+        thisClass="calendar" 
+        key="calendarcontainer"
+      >
+        {[...renderedItems.slice(0,7)]}
+      </ListContainer>
+      <hr style={{width: "90vw", color: "#eee"}}/>
+      <ListContainer thisClass="todo" key="todolistcontainer">
+        {[...renderedItems.slice(7,renderedItems.length)]}
         <AddListButton key="addlistbutton" />
-    </ListContainer>
+      </ListContainer>
     </DragDropContext>
-    </>
   )
 };
 

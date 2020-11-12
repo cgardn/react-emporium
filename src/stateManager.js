@@ -30,6 +30,18 @@ export const stateReducer = (state, action) => {
 
   // item management
   switch(action.type) {
+
+    case 'LOAD_NEW_STATE':
+      // replace current state with new state object
+      //   used when importing (manually or from backend) or
+      //   wiping a fresh board
+      // newState: object holding new state
+      return action.newState;
+
+    case 'CLEAR_STATE':
+      // wipe state and replace with empty initialState
+      return initialState;
+
     case 'ADD_TODO':
       // add a new todo to the item object and a particular
       //    list, with new ID from getId()
