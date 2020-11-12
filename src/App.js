@@ -16,6 +16,7 @@ const App = () => {
   const Container = (props) => {
     return (
       <StateDispatchContext.Provider value={stateDispatch}>
+        <Navbar todoState={todoState} />
         <div className="app">
           {props.children}
         </div>
