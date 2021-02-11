@@ -28,6 +28,34 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- firebase core -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-analytics.js"></script>
+
+    <!-- modules -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-database.js"></script>
+
+    <!-- config -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBOB-WzVJBfBMt596ESo1IRBqEMw-Lpf3c",
+        authDomain: "list-reactor.firebaseapp.com",
+        databaseURL: "https://list-reactor.firebaseio.com",
+        projectId: "list-reactor",
+        storageBucket: "list-reactor.appspot.com",
+        messagingSenderId: "693800461093",
+        appId: "1:693800461093:web:9d41899ab32b47335270cc",
+        measurementId: "G-MKMPB2FE2V"
+      };
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+      firebase.auth();
+      firebase.database();
+    </script>
+  
+      <!-- react entry point -->
     <div id="root"></div>
+
   </body>
 </html>
