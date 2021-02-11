@@ -1,4 +1,5 @@
 import React from 'react';
+import LoginButton from './LoginButton.js';
 import './Navbar.css';
 import {StateDispatchContext} from './stateManager.js';
 
@@ -21,7 +22,6 @@ const SettingsMenu = (props) => {
     <div
       className="settings-menu-overlay"
       onClick={event => {
-        console.log("Clicked outside menu")
         props.setSettingsMenuProps([0,0,false])
       }}
     >
@@ -129,6 +129,7 @@ const Navbar = (props) => {
       <span
         className="navbar-title navbar-item"
       >List Reactor</span>
+      <LoginButton />
       <span
         className="navbar-settings navbar-item"
         onClick={event => setSettingsMenuProps([event.target.offsetLeft, event.target.offsetTop, !settingsMenuProps[2]])}

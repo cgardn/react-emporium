@@ -1,0 +1,26 @@
+.menu-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 99vw;
+  z-index: 5;
+  cursor: default;
+}
+
+.submitButton, .switchButton {
+  margin: auto;
+  margin-top: 5px
+}
+
+.loginBox-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.loginBox-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+
